@@ -1,0 +1,81 @@
+name: Discord Release Notification (manual)
+
+# Manual trigger only. Automatic posting on a real release happens in
+# publish.yml (gated on a successful publish). This workflow is for
+# sending a test message or re-posting an already published release.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to re-post (e.g. 1.0.0-1.21.1). Leave empty for a test message.'
+        required: false
+        default: ''
+      release_name:
+        description: 'Test only (ignored when a tag is given)'
+        required: false
+        default: 'HSTG: Permissions 1.0.0'
+      release_body:
+        description: 'Test only (ignored when a tag is given)'
+        required: false
+        default: "### Added\n- Lock and grant commands per stage"
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      release_name: ${{ steps.data.outputs.release_name }}
+      release_body: ${{ steps.data.outputs.release_body }}
+      release_url: ${{ steps.data.outputs.release_url }}
+      published_at: ${{ steps.data.outputs.published_at }}
+      ref: ${{ steps.data.outputs.ref }}
+    steps:
+      - name: Resolve release data
+        id: data
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.event.inputs.tag }}
+          TEST_NAME: ${{ github.event.inputs.release_name }}
+          TEST_BODY: ${{ github.event.inputs.release_body }}
+          CURRENT_REF: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ -n "$TAG" ]; then
+            # Re-post an existing release: pull the real data from the API
+            data=$(gh api "repos/$REPO/releases/tags/$TAG")
+            echo "release_name=$(echo "$data" | jq -r '.name // .tag_name')" >> "$GITHUB_OUTPUT"
+            echo "release_url=$(echo "$data" | jq -r '.html_url')" >> "$GITHUB_OUTPUT"
+            echo "published_at=$(echo "$data" | jq -r '.published_at')" >> "$GITHUB_OUTPUT"
+            echo "ref=$(echo "$data" | jq -r '.target_commitish')" >> "$GITHUB_OUTPUT"
+            {
+              echo "release_body<<__HS_BODY_EOF__"
+              echo "$data" | jq -r '.body'
+              echo "__HS_BODY_EOF__"
+            } >> "$GITHUB_OUTPUT"
+          else
+            # Test message: use the manual inputs and the current branch
+            echo "release_name=$TEST_NAME" >> "$GITHUB_OUTPUT"
+            echo "release_url=https://github.com/$REPO/releases" >> "$GITHUB_OUTPUT"
+            echo "published_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+            echo "ref=$CURRENT_REF" >> "$GITHUB_OUTPUT"
+            {
+              echo "release_body<<__HS_BODY_EOF__"
+              printf '%b\n' "$TEST_BODY"
+              echo "__HS_BODY_EOF__"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+  notify:
+    needs: prepare
+    uses: ./.github/workflows/discord-notify.yml
+    with:
+      release_name: ${{ needs.prepare.outputs.release_name }}
+      release_body: ${{ needs.prepare.outputs.release_body }}
+      release_url: ${{ needs.prepare.outputs.release_url }}
+      published_at: ${{ needs.prepare.outputs.published_at }}
+      ref: ${{ needs.prepare.outputs.ref }}
+    secrets:
+      webhook: ${{ secrets.DISCORD_WEBHOOK }}
