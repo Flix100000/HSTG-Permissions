@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "net.bananemdnsa.hstg_permissions.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
