@@ -1,0 +1,5 @@
+{
+  "editor.hstg_permissions.tab.commands": "Commands",
+  "editor.hstg_permissions.tooltip.commands": "Commands mit dieser Stage sperren oder freigeben",
+  "message.hstg_permissions.command_locked": "Dieser Befehl ist noch gesperrt"
+}

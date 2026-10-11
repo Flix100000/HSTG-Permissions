@@ -1,0 +1,5 @@
+{
+  "editor.hstg_permissions.tab.commands": "Commands",
+  "editor.hstg_permissions.tooltip.commands": "Lock or grant commands with this stage",
+  "message.hstg_permissions.command_locked": "This command is still locked"
+}
