@@ -98,8 +98,14 @@ configurations {
 }
 
 dependencies {
-    compileOnly "maven.modrinth:history-stages:${hstg_version}"
-    localRuntime "maven.modrinth:history-stages:${hstg_version}"
+    def hstgLocalJar = project.findProperty('hstg_local_jar')
+    if (hstgLocalJar != null && file(hstgLocalJar).exists()) {
+        compileOnly files(hstgLocalJar)
+        localRuntime files(hstgLocalJar)
+    } else {
+        compileOnly "maven.modrinth:history-stages:${hstg_version}"
+        localRuntime "maven.modrinth:history-stages:${hstg_version}"
+    }
     localRuntime "curse.maven:lootr-361276:${lootr_file_id}"
 
     testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
