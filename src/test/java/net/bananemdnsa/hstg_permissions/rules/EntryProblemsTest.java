@@ -29,6 +29,7 @@ class EntryProblemsTest {
         List<Problem> problems = check("minecraft..op", "lock");
         assertEquals(1, problems.size());
         assertEquals(Level.ERROR, problems.get(0).level());
+        assertEquals(EntryProblems.Kind.BAD_PATH, problems.get(0).kind());
         assertTrue(problems.get(0).message().contains("minecraft..op"));
     }
 
@@ -36,6 +37,7 @@ class EntryProblemsTest {
     void anUnknownModeIsAnError() {
         List<Problem> problems = check("minecraft.gamemode", "deny");
         assertEquals(Level.ERROR, problems.get(0).level());
+        assertEquals(EntryProblems.Kind.BAD_MODE, problems.get(0).kind());
         assertTrue(problems.get(0).message().contains("deny"));
         assertEquals(Level.ERROR, check("minecraft.gamemode", null).get(0).level());
     }
@@ -45,12 +47,14 @@ class EntryProblemsTest {
         List<Problem> problems = check("minecraft.op", "grant");
         assertEquals(1, problems.size());
         assertEquals(Level.ERROR, problems.get(0).level());
+        assertEquals(EntryProblems.Kind.PROTECTED_GRANT, problems.get(0).kind());
         assertTrue(check("minecraft.op", "lock").isEmpty());
     }
 
     @Test
     void aLockOnHistoryStagesIsAWarning() {
         assertEquals(Level.WARN, check("historystages.history", "lock").get(0).level());
+        assertEquals(EntryProblems.Kind.NEVER_LOCKABLE, check("historystages.history", "lock").get(0).kind());
         assertEquals(Level.WARN, check("hstg_permissions.*", "lock").get(0).level());
     }
 
@@ -60,6 +64,7 @@ class EntryProblemsTest {
                 RULES, pattern -> false, null);
         assertEquals(1, problems.size());
         assertEquals(Level.WARN, problems.get(0).level());
+        assertEquals(EntryProblems.Kind.NOT_FOUND, problems.get(0).kind());
     }
 
     @Test

@@ -2,9 +2,11 @@ package net.bananemdnsa.hstg_permissions.tree;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +40,8 @@ public final class CommandTree<S> {
     private final Set<List<String>> addressable = new HashSet<>();
     private final Set<List<String>> openValues = new HashSet<>();
     private final List<String> unaddressable = new ArrayList<>();
+    private final Map<List<String>, Boolean> listed = new LinkedHashMap<>();
+    private final Map<String, String> aliasTargets = new HashMap<>();
 
     private CommandTree(RootCommandNode<S> root) {
         this.root = root;
@@ -65,6 +69,7 @@ public final class CommandTree<S> {
             if (!child.getChildren().isEmpty() || root.getChild(target.getName()) != target) continue;
             String alias = child.getName().toLowerCase(Locale.ROOT);
             String main = target.getName().toLowerCase(Locale.ROOT);
+            aliasTargets.put(alias, main);
             Set<String> group = new LinkedHashSet<>();
             group.addAll(aliasGroups.getOrDefault(main, Set.of(main)));
             group.addAll(aliasGroups.getOrDefault(alias, Set.of(alias)));
@@ -82,14 +87,22 @@ public final class CommandTree<S> {
                 String name = child.getName().toLowerCase(Locale.ROOT);
                 path = append(prefix, name);
                 if (name.contains(".")) unaddressable.add(String.join(" ", path));
-                if (!hasPlaceholder(path)) addressable.addAll(spellingsOf(path));
+                if (!hasPlaceholder(path)) {
+                    addressable.addAll(spellingsOf(path));
+                    // An entry cannot name a word with a dot in it, so the editor must not offer one.
+                    if (!hasDot(path)) listed.putIfAbsent(path, false);
+                }
             } else {
                 if (!prefix.isEmpty() && !hasPlaceholder(prefix) && child instanceof ArgumentCommandNode<S, ?> argument) {
                     Collection<String> values = knownValues.apply(argument.getType());
                     if (values.isEmpty()) {
                         openValues.addAll(spellingsOf(prefix));
                     } else {
-                        for (String value : values) addressable.addAll(spellingsOf(append(prefix, value.toLowerCase(Locale.ROOT))));
+                        for (String value : values) {
+                            List<String> valuePath = append(prefix, value.toLowerCase(Locale.ROOT));
+                            addressable.addAll(spellingsOf(valuePath));
+                            if (!hasDot(valuePath)) listed.putIfAbsent(valuePath, true);
+                        }
                     }
                 }
                 path = append(prefix, "<" + child.getName() + ">");
@@ -184,6 +197,25 @@ public final class CommandTree<S> {
         };
     }
 
+    /** Every path an entry can name, in tree order, mapped to whether its last word is a typed value. */
+    public Map<List<String>, Boolean> listed() {
+        return Collections.unmodifiableMap(listed);
+    }
+
+    public Map<String, String> rootMods() {
+        return Map.copyOf(rootMods);
+    }
+
+    /** Bare top-level aliases and the command they stand for, such as tp → teleport. */
+    public Map<String, String> aliasTargets() {
+        return Map.copyOf(aliasTargets);
+    }
+
+    /** Paths that take any typed value after them, so every value below them exists. */
+    public Set<List<String>> openValues() {
+        return Set.copyOf(openValues);
+    }
+
     public Set<String> mods() {
         return new TreeSet<>(rootMods.values());
     }
@@ -210,6 +242,13 @@ public final class CommandTree<S> {
             if (child instanceof ArgumentCommandNode<S, ?>) return child;
         }
         return null;
+    }
+
+    private static boolean hasDot(List<String> path) {
+        for (String word : path) {
+            if (word.contains(".")) return true;
+        }
+        return false;
     }
 
     private static boolean hasPlaceholder(List<String> path) {

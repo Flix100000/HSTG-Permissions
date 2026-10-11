@@ -13,7 +13,10 @@ public final class EntryProblems {
 
     public enum Level { ERROR, WARN }
 
-    public record Problem(Level level, String message) {}
+    /** What is wrong, for a caller that words it itself – the editor shows its own translated text. */
+    public enum Kind { BAD_PATH, BAD_MODE, PROTECTED_GRANT, NEVER_LOCKABLE, NOT_FOUND }
+
+    public record Problem(Level level, Kind kind, String message) {}
 
     private EntryProblems() {}
 
@@ -29,11 +32,11 @@ public final class EntryProblems {
         Optional<EntryPattern> pattern = entry.pattern();
         Optional<Mode> mode = entry.parsedMode();
         if (pattern.isEmpty()) {
-            problems.add(new Problem(Level.ERROR, "'" + command
+            problems.add(new Problem(Level.ERROR, Kind.BAD_PATH, "'" + command
                     + "' is not a command path. Write it like minecraft.gamemode.creative, mod.* or *."));
         }
         if (mode.isEmpty()) {
-            problems.add(new Problem(Level.ERROR, "'" + command + "' has mode '" + entry.mode()
+            problems.add(new Problem(Level.ERROR, Kind.BAD_MODE, "'" + command + "' has mode '" + entry.mode()
                     + "'. Use lock or grant."));
         }
         if (!problems.isEmpty()) return problems;
@@ -48,15 +51,15 @@ public final class EntryProblems {
         CommandTarget named = new CommandTarget(read.mod(),
                 List.of(read.kind() == EntryPattern.Kind.PATH ? read.segments() : List.of("*")));
         if (mode.get() == Mode.GRANT && read.kind() == EntryPattern.Kind.PATH && rules.isProtected(named)) {
-            problems.add(new Problem(Level.ERROR, "'" + command
+            problems.add(new Problem(Level.ERROR, Kind.PROTECTED_GRANT, "'" + command
                     + "' is on the protected list and can only be locked. The grant is ignored."));
         }
         if (mode.get() == Mode.LOCK && read.kind() != EntryPattern.Kind.ALL && rules.isNeverLockable(new CommandTarget(lockMod, named.spellings()))) {
-            problems.add(new Problem(Level.WARN, "'" + command
+            problems.add(new Problem(Level.WARN, Kind.NEVER_LOCKABLE, "'" + command
                     + "' belongs to History Stages or HSTG: Permissions, which can never be locked. The lock is ignored."));
         }
         if (exists != null && !exists.test(read)) {
-            problems.add(new Problem(Level.WARN, "No command '" + command
+            problems.add(new Problem(Level.WARN, Kind.NOT_FOUND, "No command '" + command
                     + "' on this server. A typo, or the mod is not installed. The entry stays and works once the command exists."));
         }
         return problems;
