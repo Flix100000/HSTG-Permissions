@@ -109,6 +109,8 @@ dependencies {
     localRuntime "curse.maven:lootr-361276:${lootr_file_id}"
 
     testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
+    // The tree code is plain Brigadier; tests get it directly instead of all of Minecraft.
+    testImplementation "com.mojang:brigadier:1.3.10"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
