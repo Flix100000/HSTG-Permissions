@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import net.bananemdnsa.historystages.api.stage.StageDefinitionsChangedEvent;
 import net.bananemdnsa.historystages.api.stage.StageEvent;
+import net.bananemdnsa.hstg_permissions.rank.RankUpdates;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +20,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 /**
  * A stage change has to reach the player's tab completion at once, so the remembered answers go
- * and the command tree is sent again.
+ * and the command tree is sent again. Their rank follows along.
  */
 public final class StageChangeListener {
 
@@ -81,12 +82,17 @@ public final class StageChangeListener {
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 server.getCommands().sendCommands(player);
             }
+            RankUpdates.apply(server, server.getPlayerList().getPlayers());
             return;
         }
+        List<ServerPlayer> online = new ArrayList<>();
         for (UUID playerId : players) {
             PermissionService.forget(playerId);
             ServerPlayer player = server.getPlayerList().getPlayer(playerId);
-            if (player != null) server.getCommands().sendCommands(player);
+            if (player == null) continue;
+            server.getCommands().sendCommands(player);
+            online.add(player);
         }
+        RankUpdates.apply(server, online);
     }
 }

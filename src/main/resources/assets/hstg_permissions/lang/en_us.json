@@ -37,5 +37,15 @@
   "command.hstg_permissions.verbose.prefix": "[verbose] ",
   "command.hstg_permissions.verbose.on.all": "Verbose is on: you see every command any player runs.",
   "command.hstg_permissions.verbose.on.player": "Verbose is on: you see every command %s runs.",
-  "command.hstg_permissions.verbose.off": "Verbose is off."
+  "command.hstg_permissions.verbose.off": "Verbose is off.",
+  "settings.hstg_permissions.rank.title": "Rank",
+  "settings.hstg_permissions.rank.prefix": "Prefix before the name (& for colours)",
+  "settings.hstg_permissions.rank.suffix": "Suffix after the name (& for colours)",
+  "settings.hstg_permissions.rank.priority": "Priority (the highest rank a player has wins)",
+  "config.hstg_permissions.settings.rankInChat": "Show ranks in chat",
+  "config.hstg_permissions.settings.rankInChat.desc": "Prefix and suffix of a player's rank stage in front of and behind their name in chat. Turn it off if another mod already formats the chat.",
+  "config.hstg_permissions.settings.rankInTabList": "Show ranks in the tab list",
+  "config.hstg_permissions.settings.rankInTabList.desc": "Prefix and suffix in the player list you see when holding Tab.",
+  "config.hstg_permissions.settings.rankInNameTag": "Show ranks on name tags",
+  "config.hstg_permissions.settings.rankInNameTag.desc": "Prefix and suffix on the name above a player's head. Only players who have this addon installed see it."
 }

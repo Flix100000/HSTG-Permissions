@@ -1,5 +1,8 @@
 package net.bananemdnsa.hstg_permissions.config;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+
 import net.bananemdnsa.historystages.api.config.AddonConfigField;
 import net.bananemdnsa.historystages.api.config.AddonConfigSection;
 import net.bananemdnsa.historystages.api.config.ConfigSide;
@@ -47,7 +50,24 @@ public final class PermissionsSettings {
             .write(value -> PermissionsConfig.setProtectedCommands(ProtectedListValue.split(value)))
             .build();
 
+    public static final AddonConfigField RANK_IN_CHAT = rankSwitch("rankInChat",
+            PermissionsConfig::rankInChat, PermissionsConfig::setRankInChat);
+    public static final AddonConfigField RANK_IN_TAB_LIST = rankSwitch("rankInTabList",
+            PermissionsConfig::rankInTabList, PermissionsConfig::setRankInTabList);
+    public static final AddonConfigField RANK_IN_NAME_TAG = rankSwitch("rankInNameTag",
+            PermissionsConfig::rankInNameTag, PermissionsConfig::setRankInNameTag);
+
     private PermissionsSettings() {}
+
+    private static AddonConfigField rankSwitch(String key, BooleanSupplier read, Consumer<Boolean> write) {
+        return AddonConfigField.bool(key)
+                .labelLangKey("config.hstg_permissions.settings." + key)
+                .descLangKey("config.hstg_permissions.settings." + key + ".desc")
+                .defaultValue("true")
+                .read(() -> String.valueOf(read.getAsBoolean()))
+                .write(value -> write.accept(Boolean.parseBoolean(value)))
+                .build();
+    }
 
     public static void register(RegisterConfigSectionsEvent event) {
         event.register(AddonConfigSection.builder(SECTION_ID)
@@ -56,6 +76,9 @@ public final class PermissionsSettings {
                 .field(MESSAGE_MODE)
                 .field(MESSAGE_TEXT)
                 .field(PROTECTED)
+                .field(RANK_IN_CHAT)
+                .field(RANK_IN_TAB_LIST)
+                .field(RANK_IN_NAME_TAG)
                 .build());
     }
 }

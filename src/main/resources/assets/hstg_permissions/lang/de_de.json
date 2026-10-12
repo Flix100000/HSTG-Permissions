@@ -37,5 +37,15 @@
   "command.hstg_permissions.verbose.prefix": "[verbose] ",
   "command.hstg_permissions.verbose.on.all": "Verbose ist an: du siehst jeden Befehl, den ein Spieler ausführt.",
   "command.hstg_permissions.verbose.on.player": "Verbose ist an: du siehst jeden Befehl, den %s ausführt.",
-  "command.hstg_permissions.verbose.off": "Verbose ist aus."
+  "command.hstg_permissions.verbose.off": "Verbose ist aus.",
+  "settings.hstg_permissions.rank.title": "Rang",
+  "settings.hstg_permissions.rank.prefix": "Präfix vor dem Namen (& für Farben)",
+  "settings.hstg_permissions.rank.suffix": "Suffix hinter dem Namen (& für Farben)",
+  "settings.hstg_permissions.rank.priority": "Priorität (der höchste Rang eines Spielers gewinnt)",
+  "config.hstg_permissions.settings.rankInChat": "Ränge im Chat zeigen",
+  "config.hstg_permissions.settings.rankInChat.desc": "Präfix und Suffix der Rang-Stage eines Spielers vor und hinter seinem Namen im Chat. Ausschalten, wenn schon eine andere Mod den Chat formatiert.",
+  "config.hstg_permissions.settings.rankInTabList": "Ränge in der Tab-Liste zeigen",
+  "config.hstg_permissions.settings.rankInTabList.desc": "Präfix und Suffix in der Spielerliste, die man mit Tab sieht.",
+  "config.hstg_permissions.settings.rankInNameTag": "Ränge auf Namensschildern zeigen",
+  "config.hstg_permissions.settings.rankInNameTag.desc": "Präfix und Suffix auf dem Namen über dem Kopf. Sehen nur Spieler, die dieses Addon installiert haben."
 }

@@ -10,8 +10,10 @@ import java.util.stream.Stream;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.bananemdnsa.hstg_permissions.category.CommandsCategory;
 import net.bananemdnsa.hstg_permissions.gate.PermissionService;
+import net.bananemdnsa.hstg_permissions.rank.RankSettings;
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.fml.loading.FMLPaths;
 
@@ -38,6 +40,35 @@ final class TestStages {
     /** A global stage that asks for its lock hints to be hidden. */
     static String globalWithoutHints(String name, String... commands) {
         return write("global", name, false, commands);
+    }
+
+    /** An individual stage that owns no commands and gives a rank. */
+    static String individualWithRank(String name, String prefix, String suffix, int priority) {
+        return writeRank("individual", name, prefix, suffix, priority);
+    }
+
+    /** The same as a global stage, which must give nobody a rank. */
+    static String globalWithRank(String name, String prefix, String suffix, int priority) {
+        return writeRank("global", name, prefix, suffix, priority);
+    }
+
+    private static String writeRank(String scope, String name, String prefix, String suffix, int priority) {
+        String id = write(scope, name);
+        JsonObject rank = new JsonObject();
+        rank.addProperty("prefix", prefix);
+        rank.addProperty("suffix", suffix);
+        rank.addProperty("priority", priority);
+        JsonObject settings = new JsonObject();
+        settings.add(RankSettings.GROUP.id(), rank);
+        try {
+            Path file = dir(scope).resolve(id + ".json");
+            JsonObject stage = JsonParser.parseString(Files.readString(file)).getAsJsonObject();
+            stage.add("addon_settings", settings);
+            Files.writeString(file, stage.toString());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return id;
     }
 
     static void reload(MinecraftServer server) {

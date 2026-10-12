@@ -15,6 +15,9 @@ final class SettingsMirror {
     private volatile List<String> protectedCommands = ProtectionRules.DEFAULT_PROTECTED;
     private volatile String messageMode = "LOCKED";
     private volatile String lockedMessageText = LockedMessage.DEFAULT;
+    private volatile boolean rankInChat = true;
+    private volatile boolean rankInTabList = true;
+    private volatile boolean rankInNameTag = true;
 
     List<String> protectedCommands() {
         return protectedCommands;
@@ -38,5 +41,29 @@ final class SettingsMirror {
 
     void lockedMessageText(String value) {
         lockedMessageText = value;
+    }
+
+    boolean rankInChat() {
+        return rankInChat;
+    }
+
+    void rankInChat(boolean value) {
+        rankInChat = value;
+    }
+
+    boolean rankInTabList() {
+        return rankInTabList;
+    }
+
+    void rankInTabList(boolean value) {
+        rankInTabList = value;
+    }
+
+    boolean rankInNameTag() {
+        return rankInNameTag;
+    }
+
+    void rankInNameTag(boolean value) {
+        rankInNameTag = value;
     }
 }

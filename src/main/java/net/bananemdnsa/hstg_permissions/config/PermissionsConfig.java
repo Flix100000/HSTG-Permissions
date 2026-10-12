@@ -21,6 +21,9 @@ public final class PermissionsConfig {
     private static final ModConfigSpec.ConfigValue<List<? extends String>> PROTECTED_COMMANDS;
     private static final ModConfigSpec.EnumValue<MessageMode> LOCKED_MESSAGE;
     private static final ModConfigSpec.ConfigValue<String> LOCKED_MESSAGE_TEXT;
+    private static final ModConfigSpec.BooleanValue RANK_IN_CHAT;
+    private static final ModConfigSpec.BooleanValue RANK_IN_TAB_LIST;
+    private static final ModConfigSpec.BooleanValue RANK_IN_NAME_TAG;
 
     // Fallback for when no spec is loaded at all (no world open, or a test before loading). A remote
     // client does get the server config: NeoForge syncs it as a copy without a file.
@@ -47,6 +50,16 @@ public final class PermissionsConfig {
                         + "{command} what was typed, & starts a colour code. Empty uses the translated default "
                         + "(message.hstg_permissions.command_locked).")
                 .define("locked_message_text", LockedMessage.DEFAULT);
+        RANK_IN_CHAT = builder
+                .comment("Show the prefix and suffix of a player's rank stage around their name in chat.",
+                        "Turn it off when another mod already formats the chat.")
+                .define("rank_in_chat", true);
+        RANK_IN_TAB_LIST = builder
+                .comment("Show the rank in the player list (Tab).")
+                .define("rank_in_tab_list", true);
+        RANK_IN_NAME_TAG = builder
+                .comment("Show the rank on the name above a player's head, for clients that have this addon.")
+                .define("rank_in_name_tag", true);
         SPEC = builder.build();
     }
 
@@ -97,6 +110,18 @@ public final class PermissionsConfig {
         return SPEC.isLoaded() ? LOCKED_MESSAGE_TEXT.get() : MIRROR.lockedMessageText();
     }
 
+    public static boolean rankInChat() {
+        return SPEC.isLoaded() ? RANK_IN_CHAT.get() : MIRROR.rankInChat();
+    }
+
+    public static boolean rankInTabList() {
+        return SPEC.isLoaded() ? RANK_IN_TAB_LIST.get() : MIRROR.rankInTabList();
+    }
+
+    public static boolean rankInNameTag() {
+        return SPEC.isLoaded() ? RANK_IN_NAME_TAG.get() : MIRROR.rankInNameTag();
+    }
+
     public static void setProtectedCommands(List<String> commands) {
         MIRROR.protectedCommands(commands);
         if (!SPEC.isLoaded()) {
@@ -125,5 +150,29 @@ public final class PermissionsConfig {
         }
         LOCKED_MESSAGE_TEXT.set(text);
         LOCKED_MESSAGE_TEXT.save();
+    }
+
+    public static void setRankInChat(boolean shown) {
+        MIRROR.rankInChat(shown);
+        set(RANK_IN_CHAT, shown);
+    }
+
+    public static void setRankInTabList(boolean shown) {
+        MIRROR.rankInTabList(shown);
+        set(RANK_IN_TAB_LIST, shown);
+    }
+
+    public static void setRankInNameTag(boolean shown) {
+        MIRROR.rankInNameTag(shown);
+        set(RANK_IN_NAME_TAG, shown);
+    }
+
+    private static void set(ModConfigSpec.BooleanValue value, boolean shown) {
+        if (!SPEC.isLoaded()) {
+            reapply();
+            return;
+        }
+        value.set(shown);
+        value.save();
     }
 }

@@ -8,6 +8,7 @@ import net.bananemdnsa.historystages.api.config.RegisterConfigSectionsEvent;
 import net.bananemdnsa.historystages.api.diagnostics.RegisterReportSectionsEvent;
 import net.bananemdnsa.historystages.api.diagnostics.RegisterStageChecksEvent;
 import net.bananemdnsa.historystages.api.lock.RegisterLockCategoriesEvent;
+import net.bananemdnsa.historystages.api.settings.RegisterStageSettingsGroupsEvent;
 import net.bananemdnsa.hstg_permissions.category.CommandsCategory;
 import net.bananemdnsa.hstg_permissions.command.PermsCommand;
 import net.bananemdnsa.hstg_permissions.config.PermissionsConfig;
@@ -18,11 +19,15 @@ import net.bananemdnsa.hstg_permissions.gate.CommandGuard;
 import net.bananemdnsa.hstg_permissions.gate.StageChangeListener;
 import net.bananemdnsa.hstg_permissions.gate.VerboseWatch;
 import net.bananemdnsa.hstg_permissions.network.PermissionsNetwork;
+import net.bananemdnsa.hstg_permissions.rank.RankService;
+import net.bananemdnsa.hstg_permissions.rank.RankSettings;
+import net.bananemdnsa.hstg_permissions.rank.RankUpdates;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.CommandEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -43,6 +48,7 @@ public class HSTGPermissions {
         modEventBus.addListener(RegisterStageChecksEvent.class, PermissionDiagnostics::registerChecks);
         modEventBus.addListener(RegisterReportSectionsEvent.class, PermissionDiagnostics::registerReport);
         modEventBus.addListener(RegisterPayloadHandlersEvent.class, PermissionsNetwork::register);
+        modEventBus.addListener(RegisterStageSettingsGroupsEvent.class, RankSettings::register);
         NeoForge.EVENT_BUS.addListener(RegisterCommandsEvent.class, PermsCommand::register);
         // Last, so every other mod's commands are already in the tree.
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, RegisterCommandsEvent.class, CommandGuard::onRegisterCommands);
@@ -50,5 +56,9 @@ public class HSTGPermissions {
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, CommandEvent.class, CommandEventGate::onCommand);
         StageChangeListener.register(NeoForge.EVENT_BUS);
         VerboseWatch.register(NeoForge.EVENT_BUS);
+        // Low, so a nickname another mod sets is already there to wrap.
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOW, PlayerEvent.NameFormat.class, RankService::onNameFormat);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOW, PlayerEvent.TabListNameFormat.class, RankService::onTabListNameFormat);
+        RankUpdates.register(NeoForge.EVENT_BUS);
     }
 }
