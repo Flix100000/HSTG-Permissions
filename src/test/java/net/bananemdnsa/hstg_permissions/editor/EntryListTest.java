@@ -1,6 +1,7 @@
 package net.bananemdnsa.hstg_permissions.editor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -70,6 +71,27 @@ class EntryListTest {
         assertEquals(List.of(new PermissionEntry("minecraft.a", "lock"), new PermissionEntry("minecraft.c", "lock")),
                 list.toEntries());
         assertEquals(List.of("minecraft.a", "minecraft.c"), list.commands());
+    }
+
+    @Test
+    void switchingToTheSameModeChangesNothing() {
+        EntryList list = listOf("minecraft.a", "lock");
+        assertFalse(list.switchTo(0, Mode.LOCK));
+        assertEquals(List.of(new PermissionEntry("minecraft.a", "lock")), list.toEntries());
+    }
+
+    @Test
+    void switchingRepairsAnUnreadableMode() {
+        EntryList list = listOf("minecraft.a", "lok");
+        assertTrue(list.switchTo(0, Mode.LOCK));
+        assertEquals(List.of(new PermissionEntry("minecraft.a", "lock")), list.toEntries());
+    }
+
+    @Test
+    void switchingToTheOtherModeChangesIt() {
+        EntryList list = listOf("minecraft.a", "lock");
+        assertTrue(list.switchTo(0, Mode.GRANT));
+        assertEquals(Optional.of(Mode.GRANT), list.mode(0));
     }
 
     @Test

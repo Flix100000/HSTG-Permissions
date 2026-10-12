@@ -60,6 +60,16 @@ public final class EntryList {
         modes.set(index, mode.id());
     }
 
+    /**
+     * Sets the mode a click asked for. False when nothing changed, so a click on the half that is
+     * already chosen does not mark the stage dirty; an unreadable mode always counts as a change.
+     */
+    public boolean switchTo(int index, Mode mode) {
+        if (mode(index).orElse(null) == mode) return false;
+        setMode(index, mode);
+        return true;
+    }
+
     public void removeAt(int index) {
         if (index < 0 || index >= commands.size()) return;
         commands.remove(index);

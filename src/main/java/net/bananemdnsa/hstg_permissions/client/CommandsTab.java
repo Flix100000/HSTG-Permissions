@@ -1,6 +1,7 @@
 package net.bananemdnsa.hstg_permissions.client;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -99,9 +100,7 @@ public final class CommandsTab implements CategoryTab {
             row.text(RowText.of(entry.command(), status.level()));
             int selected = list.mode(i).orElse(Mode.LOCK) == Mode.GRANT ? 1 : 0;
             row.segments(modeLabels, selected, null, picked -> {
-                if (picked == selected) return;
-                list.setMode(i, picked == 1 ? Mode.GRANT : Mode.LOCK);
-                onChanged.run();
+                if (list.switchTo(i, picked == 1 ? Mode.GRANT : Mode.LOCK)) onChanged.run();
             });
             if (row.isHovered() && status.problem() != null) {
                 ctx.tooltip("hstgp.row." + i + "." + status.problem().kind(), describe(entry, status.problem()));
@@ -140,7 +139,7 @@ public final class CommandsTab implements CategoryTab {
     }
 
     private static String describe(PermissionEntry entry, EntryProblems.Problem problem) {
-        String key = "editor.hstg_permissions.problem." + problem.kind().name().toLowerCase(java.util.Locale.ROOT);
+        String key = "editor.hstg_permissions.problem." + problem.kind().name().toLowerCase(Locale.ROOT);
         return Component.translatable(key, entry.command(), String.valueOf(entry.mode())).getString();
     }
 }
