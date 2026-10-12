@@ -1,0 +1,103 @@
+name: Bug Report
+description: "Something in HSTG: Permissions doesn't work the way it should"
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! A quick check first:
+        - Is it already in the [issues](https://github.com/Flix100000/HSTG-Permissions/issues)?
+        - `/hstgperms check <player> <command>` often explains why a command is allowed or not. Worth running before you report.
+        - Can players use it to get commands they shouldn't have, or to crash a server? Then please don't post it here, see [SECURITY.md](https://github.com/Flix100000/HSTG-Permissions/blob/main/SECURITY.md).
+
+  - type: input
+    id: version
+    attributes:
+      label: "HSTG: Permissions version"
+      placeholder: "e.g. 1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: hstg-version
+    attributes:
+      label: History Stages version
+      placeholder: "e.g. 6.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: loader-version
+    attributes:
+      label: NeoForge version
+      placeholder: "e.g. 21.1.222"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Where does it happen?
+      options:
+        - Singleplayer
+        - Dedicated server
+        - Both
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened, and what did you expect?
+      placeholder: |
+        A player with the stage "role_moderator" can't use /kick, even though the stage has minecraft.kick.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Add minecraft.kick to the individual stage role_moderator.
+        2. /history unlock ... for a player who isn't an operator.
+        3. That player runs /kick Steve.
+    validations:
+      required: true
+
+  - type: textarea
+    id: check
+    attributes:
+      label: Output of /hstgperms check
+      description: If it's about a specific command, what does `/hstgperms check <player> <command>` say?
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: stage-json
+    attributes:
+      label: Stage JSON
+      description: The stage file(s) involved. Leave empty if it doesn't matter.
+      render: json
+    validations:
+      required: false
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Log / crash report
+      description: For long logs, use [mclo.gs](https://mclo.gs) and paste the link.
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: mods
+    attributes:
+      label: Other mods
+      description: Mods that add or change commands are the interesting ones here.
+    validations:
+      required: false

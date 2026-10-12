@@ -55,6 +55,12 @@ Questions or support: join the [History Stages Discord](https://discord.gg/BeZzx
 Found a bug or have an idea? Open an issue on the
 [Issue Tracker](https://github.com/Flix100000/HSTG-Permissions/issues).
 
+## Contributing
+
+Bug fixes, ideas, translations and wiki help are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) explains the
+setup and the few rules. If you found a way for players to get around a stage, please report it privately, see
+[SECURITY.md](SECURITY.md).
+
 ## Authors
 
 - Flix100000 (Developer)

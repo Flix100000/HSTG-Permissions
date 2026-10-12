@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Wiki
+    url: https://github.com/Flix100000/HSTG-Permissions/wiki
+    about: How entries work, the editor, ranks, config and known limits.
+  - name: Question / Support
+    url: https://discord.gg/BeZzxyZ9c4
+    about: Ask on the History Stages Discord.
+  - name: Problem with History Stages itself
+    url: https://github.com/Flix100000/History-Stages/issues
+    about: Stages, the editor or the Research Pedestal, anything that isn't about commands or ranks.

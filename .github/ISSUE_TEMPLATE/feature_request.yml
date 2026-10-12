@@ -1,0 +1,35 @@
+name: Feature Request
+description: "An idea for HSTG: Permissions"
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please check the [issues](https://github.com/Flix100000/HSTG-Permissions/issues) first, maybe someone had the same idea.
+
+        One thing up front: the addon has a single rule on purpose ("this command belongs to this stage"). Ideas that need a second kind of entry, like negative permissions or inheritance between stages, are a hard sell. Not impossible, but explain why the single rule can't do it.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What should it do?
+      placeholder: "It would be nice if a rank could also change the colour of the player's name."
+    validations:
+      required: true
+
+  - type: textarea
+    id: usecase
+    attributes:
+      label: What do you need it for?
+      description: Your server or modpack setup and the problem you're trying to solve.
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: What do you do right now?
+      description: A workaround, another mod, or nothing at all.
+    validations:
+      required: false
