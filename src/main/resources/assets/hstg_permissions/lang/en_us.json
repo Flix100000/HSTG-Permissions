@@ -11,5 +11,11 @@
   "editor.hstg_permissions.problem.protected_grant": "%1$s is on the protected list and can only be locked. This grant does nothing. The list is in the server config.",
   "editor.hstg_permissions.problem.never_lockable": "%1$s belongs to History Stages or HSTG: Permissions, which can never be locked. This lock does nothing.",
   "editor.hstg_permissions.problem.not_found": "%1$s does not exist on this server. A typo, or the mod is missing. The entry stays and works once the command exists.",
+  "editor.hstg_permissions.picker.search": "Search commands... (@mod)",
+  "editor.hstg_permissions.picker.all": "All commands",
+  "editor.hstg_permissions.picker.loading": "Loading the server's commands",
+  "editor.hstg_permissions.picker.unavailable": "This server does not list its commands. Type a path into the search.",
+  "editor.hstg_permissions.picker.typed": "Add: %s",
+  "editor.hstg_permissions.picker.not_found": "not found",
   "message.hstg_permissions.command_locked": "This command is still locked"
 }

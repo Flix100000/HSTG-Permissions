@@ -28,6 +28,8 @@ public final class CommandsTab implements CategoryTab {
     private final Runnable onChanged;
     private final EntryList list = new EntryList();
     private final EditorRowList rows = new EditorRowList();
+    @Nullable
+    private CommandPicker picker;
 
     CommandsTab(Runnable onChanged) {
         this.onChanged = onChanged;
@@ -120,22 +122,25 @@ public final class CommandsTab implements CategoryTab {
     }
 
     @Override
-    public boolean hasAddButton() {
-        return false; // until the picker exists
-    }
-
-    @Override
     public void rebuildPicker() {
+        // The mode is read when the selection is confirmed, so every picked command gets the same one.
+        picker = new CommandPicker(list, command -> {
+            list.pick(command, picker.mode());
+            onChanged.run();
+        });
     }
 
     @Override
     @Nullable
     public PickerOverlay activeOverlay() {
-        return null;
+        return picker;
     }
 
     @Override
     public void openPicker(int centerX, int centerY, int parentWidth) {
+        if (picker == null) rebuildPicker();
+        picker.setFilter("");
+        picker.show(centerX, centerY, parentWidth);
     }
 
     private static String describe(PermissionEntry entry, EntryProblems.Problem problem) {

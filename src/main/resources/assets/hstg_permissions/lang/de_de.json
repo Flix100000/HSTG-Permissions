@@ -11,5 +11,11 @@
   "editor.hstg_permissions.problem.protected_grant": "%1$s steht auf der Schutzliste und lässt sich nur sperren. Diese Freigabe wirkt nicht. Die Liste steht in der Server-Config.",
   "editor.hstg_permissions.problem.never_lockable": "%1$s gehört zu History Stages oder HSTG: Permissions und lässt sich nie sperren. Diese Sperre wirkt nicht.",
   "editor.hstg_permissions.problem.not_found": "%1$s gibt es auf diesem Server nicht. Ein Tippfehler, oder die Mod fehlt. Der Eintrag bleibt und wirkt, sobald es den Command gibt.",
+  "editor.hstg_permissions.picker.search": "Commands suchen… (@mod)",
+  "editor.hstg_permissions.picker.all": "Alle Commands",
+  "editor.hstg_permissions.picker.loading": "Lädt die Commands des Servers",
+  "editor.hstg_permissions.picker.unavailable": "Dieser Server nennt seine Commands nicht. Pfad oben ins Suchfeld tippen.",
+  "editor.hstg_permissions.picker.typed": "Eintragen: %s",
+  "editor.hstg_permissions.picker.not_found": "nicht gefunden",
   "message.hstg_permissions.command_locked": "Dieser Befehl ist noch gesperrt"
 }
