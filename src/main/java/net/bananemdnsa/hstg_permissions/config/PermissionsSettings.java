@@ -4,6 +4,7 @@ import net.bananemdnsa.historystages.api.config.AddonConfigField;
 import net.bananemdnsa.historystages.api.config.AddonConfigSection;
 import net.bananemdnsa.historystages.api.config.ConfigSide;
 import net.bananemdnsa.historystages.api.config.RegisterConfigSectionsEvent;
+import net.bananemdnsa.hstg_permissions.rules.LockedMessage;
 import net.bananemdnsa.hstg_permissions.rules.ProtectedListValue;
 import net.bananemdnsa.hstg_permissions.rules.ProtectionRules;
 
@@ -31,7 +32,9 @@ public final class PermissionsSettings {
     public static final AddonConfigField MESSAGE_TEXT = AddonConfigField.richText("lockedMessageText")
             .labelLangKey("config.hstg_permissions.settings.lockedMessageText")
             .descLangKey("config.hstg_permissions.settings.lockedMessageText.desc")
-            .defaultValue("")
+            .defaultValue(LockedMessage.DEFAULT)
+            .placeholder("{stage}")
+            .placeholder("{command}")
             .read(PermissionsConfig::lockedMessageText)
             .write(PermissionsConfig::setLockedMessageText)
             .build();

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import net.bananemdnsa.hstg_permissions.HSTGPermissions;
 import net.bananemdnsa.hstg_permissions.gate.StageChangeListener;
+import net.bananemdnsa.hstg_permissions.rules.LockedMessage;
 import net.bananemdnsa.hstg_permissions.rules.ProtectionRules;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -42,9 +43,10 @@ public final class PermissionsConfig {
                         "VANILLA answers like Minecraft does for a command that does not exist.")
                 .defineEnum("locked_message", MessageMode.LOCKED);
         LOCKED_MESSAGE_TEXT = builder
-                .comment("The message shown when a command is locked. Empty uses the translated default "
-                        + "(message.hstg_permissions.command_locked). & starts a colour code.")
-                .define("locked_message_text", "");
+                .comment("The message shown when a command is locked. {stage} is the missing stage, "
+                        + "{command} what was typed, & starts a colour code. Empty uses the translated default "
+                        + "(message.hstg_permissions.command_locked).")
+                .define("locked_message_text", LockedMessage.DEFAULT);
         SPEC = builder.build();
     }
 

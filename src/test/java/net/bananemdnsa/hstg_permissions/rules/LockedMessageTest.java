@@ -10,13 +10,25 @@ class LockedMessageTest {
 
     @Test
     void emptyFallsBackToTheLangKey() {
-        assertEquals(Optional.empty(), LockedMessage.text(""));
-        assertEquals(Optional.empty(), LockedMessage.text("   "));
-        assertEquals(Optional.empty(), LockedMessage.text(null));
+        assertEquals(Optional.empty(), LockedMessage.format("", "Nether", "time"));
+        assertEquals(Optional.empty(), LockedMessage.format("   ", "Nether", "time"));
+        assertEquals(Optional.empty(), LockedMessage.format(null, "Nether", "time"));
     }
 
     @Test
-    void colourCodesAreTranslated() {
-        assertEquals(Optional.of("§cNope"), LockedMessage.text("&cNope"));
+    void placeholdersAreFilled() {
+        assertEquals(Optional.of("§cNo /time without §eNether"),
+                LockedMessage.format("&cNo /{command} without &e{stage}", "Nether", "time"));
+    }
+
+    @Test
+    void theDefaultReadsWell() {
+        assertEquals(Optional.of("§cThis command is still locked. §7Needs: §eNether, Mod"),
+                LockedMessage.format(LockedMessage.DEFAULT, "Nether, Mod", "gamemode creative"));
+    }
+
+    @Test
+    void hiddenStagesShowAsQuestionMarks() {
+        assertEquals(Optional.of("Needs ???"), LockedMessage.format("Needs {stage}", LockedMessage.HIDDEN, "time"));
     }
 }

@@ -39,6 +39,11 @@ final class Inbox implements CommandSource {
         return false;
     }
 
+    // The shipped default text is a literal now, so "locked" is either it or the lang-key fallback.
+    boolean saysLocked() {
+        return mentions("message.hstg_permissions.command_locked") || toString().contains("This command is still locked");
+    }
+
     // sendFailure wraps the message in an empty component, so the key sits one level down.
     private static boolean mentions(Component component, String langKey) {
         if (component.getContents() instanceof TranslatableContents translatable && translatable.getKey().equals(langKey)) {

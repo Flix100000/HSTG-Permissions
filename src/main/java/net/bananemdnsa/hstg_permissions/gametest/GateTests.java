@@ -17,7 +17,6 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 @PrefixGameTestTemplate(false)
 public final class GateTests {
 
-    private static final String LOCKED = "message.hstg_permissions.command_locked";
     private static final String UNKNOWN = "command.unknown.command";
 
     private GateTests() {}
@@ -34,7 +33,7 @@ public final class GateTests {
                 helper.fail("/gamemode creative must be stopped by a stage that does not have it");
                 return;
             }
-            if (!inbox.mentions(LOCKED)) {
+            if (!inbox.saysLocked()) {
                 helper.fail("the player must be told the command is locked, got " + inbox);
                 return;
             }
@@ -93,7 +92,7 @@ public final class GateTests {
             TestStages.global("gate_locked_word", "minecraft.time");
             TestStages.reload(server);
             Inbox inbox = TestPlayers.run(player, "time set day");
-            if (!inbox.mentions(LOCKED) || inbox.mentions(UNKNOWN)) {
+            if (!inbox.saysLocked() || inbox.mentions(UNKNOWN)) {
                 helper.fail("a hidden command must be named as locked in LOCKED mode, got " + inbox);
                 return;
             }
@@ -114,7 +113,7 @@ public final class GateTests {
             TestStages.reload(server);
             Inbox word = TestPlayers.run(player, "time set day");
             Inbox value = TestPlayers.run(player, "gamemode creative");
-            if (!word.mentions(UNKNOWN) || word.mentions(LOCKED) || !value.mentions(UNKNOWN) || value.mentions(LOCKED)) {
+            if (!word.mentions(UNKNOWN) || word.saysLocked() || !value.mentions(UNKNOWN) || value.saysLocked()) {
                 helper.fail("VANILLA mode must look like an unknown command, got " + word + " / " + value);
                 return;
             }

@@ -1,10 +1,14 @@
 package net.bananemdnsa.hstg_permissions.gate;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mojang.brigadier.ParseResults;
 import net.bananemdnsa.historystages.api.diagnostics.Kind;
 import net.bananemdnsa.historystages.api.diagnostics.RuntimeCategory;
 import net.bananemdnsa.historystages.api.diagnostics.RuntimeLog;
 import net.bananemdnsa.historystages.api.lock.LockFeedbacks;
+import net.bananemdnsa.historystages.api.stage.StageStates;
 import net.bananemdnsa.hstg_permissions.config.PermissionsConfig;
 import net.bananemdnsa.hstg_permissions.config.PermissionsConfig.MessageMode;
 import net.bananemdnsa.hstg_permissions.rules.CommandTarget;
@@ -73,11 +77,26 @@ public final class CommandEventGate {
             source.sendFailure(Component.translatable("command.unknown.command"));
             return;
         }
-        MutableComponent message = LockedMessage.text(PermissionsConfig.lockedMessageText())
+        String stages = stageNames(player, decision.lockingStages());
+        String command = input.startsWith("/") ? input.substring(1) : input;
+        MutableComponent message = LockedMessage.format(PermissionsConfig.lockedMessageText(), stages, command)
                 .<MutableComponent>map(Component::literal)
-                .orElseGet(() -> Component.translatable("message.hstg_permissions.command_locked"));
-        Component required = LockFeedbacks.requiredSuffix(player, decision.lockingStages());
-        if (required != null) message.append(required);
+                .orElseGet(() -> {
+                    MutableComponent fallback = Component.translatable("message.hstg_permissions.command_locked");
+                    Component required = LockFeedbacks.requiredSuffix(player, decision.lockingStages());
+                    if (required != null) fallback.append(required);
+                    return fallback;
+                });
         source.sendFailure(message);
+    }
+
+    // Names only where every stage allows hints, the same rule as LockFeedbacks.requiredSuffix.
+    private static String stageNames(ServerPlayer player, List<String> stageIds) {
+        List<String> names = new ArrayList<>();
+        for (String stageId : stageIds) {
+            if (!StageStates.showsLockHints(stageId)) return LockedMessage.HIDDEN;
+            names.add(StageStates.displayNameFor(stageId, player));
+        }
+        return names.isEmpty() ? LockedMessage.HIDDEN : String.join(", ", names);
     }
 }

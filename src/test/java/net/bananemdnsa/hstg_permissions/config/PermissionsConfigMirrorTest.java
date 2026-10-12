@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import net.bananemdnsa.hstg_permissions.rules.LockedMessage;
 import net.bananemdnsa.hstg_permissions.rules.ProtectionRules;
 
 // PermissionsConfig needs NeoForge's ModConfigSpec, which the unit tests do not have; its
@@ -17,7 +18,7 @@ class PermissionsConfigMirrorTest {
         SettingsMirror mirror = new SettingsMirror();
         assertEquals(ProtectionRules.DEFAULT_PROTECTED, mirror.protectedCommands());
         assertEquals("LOCKED", mirror.messageMode());
-        assertEquals("", mirror.lockedMessageText());
+        assertEquals(LockedMessage.DEFAULT, mirror.lockedMessageText());
     }
 
     @Test

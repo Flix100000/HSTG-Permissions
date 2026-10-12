@@ -2,6 +2,7 @@ package net.bananemdnsa.hstg_permissions.config;
 
 import java.util.List;
 
+import net.bananemdnsa.hstg_permissions.rules.LockedMessage;
 import net.bananemdnsa.hstg_permissions.rules.ProtectionRules;
 
 /**
@@ -13,7 +14,7 @@ final class SettingsMirror {
 
     private volatile List<String> protectedCommands = ProtectionRules.DEFAULT_PROTECTED;
     private volatile String messageMode = "LOCKED";
-    private volatile String lockedMessageText = "";
+    private volatile String lockedMessageText = LockedMessage.DEFAULT;
 
     List<String> protectedCommands() {
         return protectedCommands;

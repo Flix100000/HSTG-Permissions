@@ -4,6 +4,7 @@ import net.bananemdnsa.hstg_permissions.HSTGPermissions;
 import net.bananemdnsa.hstg_permissions.config.PermissionsConfig;
 import net.bananemdnsa.hstg_permissions.config.PermissionsSettings;
 import net.bananemdnsa.hstg_permissions.rules.CommandTarget;
+import net.bananemdnsa.hstg_permissions.rules.LockedMessage;
 import net.bananemdnsa.hstg_permissions.rules.ProtectedListValue;
 import net.bananemdnsa.hstg_permissions.rules.ProtectionRules;
 import net.minecraft.gametest.framework.GameTest;
@@ -26,17 +27,38 @@ public final class SettingsTests {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
-            PermissionsSettings.MESSAGE_TEXT.write().accept("&cNope");
+            PermissionsSettings.MESSAGE_TEXT.write().accept("&cNope {command}");
             TestStages.global("settings_text", "minecraft.time");
             TestStages.reload(server);
             Inbox inbox = TestPlayers.run(player, "time query daytime");
-            if (!inbox.toString().contains("§cNope") || inbox.mentions(LOCKED)) {
+            if (!inbox.toString().contains("§cNope time query daytime") || inbox.mentions(LOCKED)) {
                 helper.fail("the admin's own text must replace the default, got " + inbox);
                 return;
             }
             helper.succeed();
         } finally {
-            PermissionsSettings.MESSAGE_TEXT.write().accept("");
+            PermissionsSettings.MESSAGE_TEXT.write().accept(LockedMessage.DEFAULT);
+            TestPlayers.cleanUp(player);
+            TestStages.removeAll(server);
+        }
+    }
+
+    @GameTest(template = "empty", batch = "hstgp_settings_default_text")
+    public static void theDefaultNamesTheStage(GameTestHelper helper) {
+        MinecraftServer server = helper.getLevel().getServer();
+        ServerPlayer player = TestPlayers.createOp(helper);
+        try {
+            PermissionsSettings.MESSAGE_TEXT.write().accept(LockedMessage.DEFAULT);
+            TestStages.global("settings_default", "minecraft.time");
+            TestStages.reload(server);
+            Inbox inbox = TestPlayers.run(player, "time query daytime");
+            if (!inbox.toString().contains("settings_default") || inbox.mentions(LOCKED)) {
+                helper.fail("the default text must name the missing stage, got " + inbox);
+                return;
+            }
+            helper.succeed();
+        } finally {
+            PermissionsSettings.MESSAGE_TEXT.write().accept(LockedMessage.DEFAULT);
             TestPlayers.cleanUp(player);
             TestStages.removeAll(server);
         }
@@ -57,6 +79,7 @@ public final class SettingsTests {
             }
             helper.succeed();
         } finally {
+            PermissionsSettings.MESSAGE_TEXT.write().accept(LockedMessage.DEFAULT);
             TestPlayers.cleanUp(player);
             TestStages.removeAll(server);
         }
