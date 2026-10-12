@@ -53,10 +53,10 @@ class CommandCatalogTest {
 
     @Test
     void judgesEntriesLikeTheReport() {
-        assertTrue(catalog.problems(new PermissionEntry("minecraft.gamemode.creative", null)).isEmpty());
-        assertTrue(catalog.problems(new PermissionEntry("minecraft.op", null)).stream()
+        assertTrue(catalog.problems(new PermissionEntry("minecraft.gamemode.creative")).isEmpty());
+        assertTrue(catalog.problems(new PermissionEntry("minecraft.op")).stream()
                 .anyMatch(problem -> problem.kind() == EntryProblems.Kind.PROTECTED));
         assertEquals(EntryProblems.Kind.NOT_FOUND,
-                catalog.problems(new PermissionEntry("minecraft.gamemode.creatve", null)).get(0).kind());
+                catalog.problems(new PermissionEntry("minecraft.gamemode.creatve")).get(0).kind());
     }
 }

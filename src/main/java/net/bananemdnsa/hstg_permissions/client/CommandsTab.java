@@ -16,7 +16,6 @@ import net.bananemdnsa.hstg_permissions.editor.EntryList;
 import net.bananemdnsa.hstg_permissions.editor.EntryStatus;
 import net.bananemdnsa.hstg_permissions.editor.RowText;
 import net.bananemdnsa.hstg_permissions.rules.EntryProblems;
-import net.bananemdnsa.hstg_permissions.rules.Mode;
 import net.bananemdnsa.hstg_permissions.rules.PermissionEntry;
 import net.minecraft.network.chat.Component;
 
@@ -92,25 +91,17 @@ public final class CommandsTab implements CategoryTab {
 
     @Override
     public boolean renderContent(TabRenderContext ctx) {
-        List<String> modeLabels = List.of(
-                Component.translatable("editor.hstg_permissions.mode.lock").getString(),
-                Component.translatable("editor.hstg_permissions.mode.grant").getString());
         var catalog = ClientCatalog.get();
         int bottom = rows.render(ctx, list.size(), (row, i) -> {
             PermissionEntry entry = list.entryAt(i);
             EntryStatus status = EntryStatus.of(entry, catalog);
             row.text(RowText.of(entry.command(), status.level()));
-            int selected = list.mode(i).orElse(Mode.LOCK) == Mode.GRANT ? 1 : 0;
-            row.segments(modeLabels, selected, null, picked -> {
-                if (list.switchTo(i, picked == 1 ? Mode.GRANT : Mode.LOCK)) onChanged.run();
-            });
             if (row.isHovered() && status.problem() != null) {
                 ctx.tooltip("hstgp.row." + i + "." + status.problem().kind(), describe(entry, status.problem()));
             }
         });
         if (list.size() > 0) {
-            String count = Component.translatable("editor.hstg_permissions.count",
-                    list.size(), list.count(Mode.LOCK), list.count(Mode.GRANT)).getString();
+            String count = Component.translatable("editor.hstg_permissions.count", list.size()).getString();
             ctx.graphics().drawString(ctx.font(), count, ctx.x() + 4, bottom + 3, 0x888888, false);
         }
         return true;
@@ -123,9 +114,8 @@ public final class CommandsTab implements CategoryTab {
 
     @Override
     public void rebuildPicker() {
-        // The mode is read when the selection is confirmed, so every picked command gets the same one.
         picker = new CommandPicker(list, command -> {
-            list.pick(command, picker.mode());
+            list.pick(command);
             onChanged.run();
         });
     }
@@ -145,6 +135,6 @@ public final class CommandsTab implements CategoryTab {
 
     private static String describe(PermissionEntry entry, EntryProblems.Problem problem) {
         String key = "editor.hstg_permissions.problem." + problem.kind().name().toLowerCase(Locale.ROOT);
-        return Component.translatable(key, entry.command(), String.valueOf(entry.mode())).getString();
+        return Component.translatable(key, entry.command()).getString();
     }
 }

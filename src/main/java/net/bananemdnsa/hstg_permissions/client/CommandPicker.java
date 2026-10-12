@@ -13,7 +13,6 @@ import net.bananemdnsa.hstg_permissions.editor.EntryList;
 import net.bananemdnsa.hstg_permissions.editor.PickerRow;
 import net.bananemdnsa.hstg_permissions.editor.PickerTree;
 import net.bananemdnsa.hstg_permissions.editor.TypedPath;
-import net.bananemdnsa.hstg_permissions.rules.Mode;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -30,7 +29,6 @@ public final class CommandPicker extends AbstractSearchableList<PickerRow> {
 
     private final EntryList list;
     private final Set<String> expanded = new HashSet<>();
-    private Mode mode = Mode.LOCK;
     private long seenVersion = -1;
     private PickerTree tree;
     private CommandCatalog treeOf;
@@ -39,22 +37,6 @@ public final class CommandPicker extends AbstractSearchableList<PickerRow> {
         super(Component.translatable("editor.hstg_permissions.picker.search").getString(), onSelect, null);
         this.list = list;
         setMultiSelect(true);
-    }
-
-    /** What the confirmed selection becomes: the last of the two own tabs that was open. */
-    public Mode mode() {
-        return mode;
-    }
-
-    @Override
-    protected List<String> ownTabLabels() {
-        return List.of(Component.translatable("editor.hstg_permissions.mode.lock").getString(),
-                Component.translatable("editor.hstg_permissions.mode.grant").getString());
-    }
-
-    @Override
-    protected void onOwnTabChanged(int index) {
-        mode = index == 1 ? Mode.GRANT : Mode.LOCK;
     }
 
     @Override
@@ -182,20 +164,18 @@ public final class CommandPicker extends AbstractSearchableList<PickerRow> {
         };
     }
 
-    // Drawn by the addon, so red and green are fine here: they say lock and grant, not "wrong".
     private static void drawChip(GuiGraphics g, Font font, EntryList.Mark mark, int x, int y, int w, int h) {
-        boolean lock = mark.mode() == Mode.LOCK;
-        int line = lock ? 0xFFE05555 : 0xFF55C060;
-        String letter = Component.translatable(lock ? "editor.hstg_permissions.mode.lock.short"
-                : "editor.hstg_permissions.mode.grant.short").getString();
-        if (mark.inherited()) {
-            for (int dx = 0; dx < w; dx += 2) g.fill(x + dx, y + h - 1, x + dx + 1, y + h, line);
-            g.drawString(font, letter, x + (w - font.width(letter)) / 2, y + (h - 8) / 2, line, false);
+        String tick = "✓";
+        int tickX = x + (w - font.width(tick)) / 2;
+        int tickY = y + (h - 8) / 2;
+        if (mark == EntryList.Mark.INHERITED) {
+            for (int dx = 0; dx < w; dx += 2) g.fill(x + dx, y + h - 1, x + dx + 1, y + h, 0xFF888888);
+            g.drawString(font, tick, tickX, tickY, 0xFF888888, false);
             return;
         }
-        g.fill(x, y, x + w, y + h, lock ? 0xFF4A2222 : 0xFF22402A);
-        g.fill(x, y + h - 1, x + w, y + h, line);
-        g.drawString(font, letter, x + (w - font.width(letter)) / 2, y + (h - 8) / 2, 0xFFFFFFFF, false);
+        g.fill(x, y, x + w, y + h, 0xFF2A2A2A);
+        g.fill(x, y + h - 1, x + w, y + h, 0xFFFFCC00);
+        g.drawString(font, tick, tickX, tickY, 0xFFFFCC00, false);
     }
 
     private PickerTree currentTree() {

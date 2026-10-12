@@ -5,20 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
 class EntryBasicsTest {
-
-    @Test
-    void modesReadForgivingly() {
-        assertEquals(Optional.of(Mode.LOCK), Mode.parse("lock"));
-        assertEquals(Optional.of(Mode.LOCK), Mode.parse("LOCK"));
-        assertEquals(Optional.of(Mode.GRANT), Mode.parse(" Grant "));
-        assertTrue(Mode.parse("deny").isEmpty());
-        assertTrue(Mode.parse(null).isEmpty());
-    }
 
     @Test
     void targetsAreLowercase() {
@@ -36,15 +26,19 @@ class EntryBasicsTest {
 
     @Test
     void anEntryWithMissingFieldsReadsAsNothing() {
-        PermissionEntry empty = new PermissionEntry(null, null);
-        assertTrue(empty.pattern().isEmpty());
-        assertTrue(empty.parsedMode().isEmpty());
+        assertTrue(new PermissionEntry(null).pattern().isEmpty());
     }
 
     @Test
-    void anEntryReadsItsPatternAndMode() {
-        PermissionEntry entry = new PermissionEntry("minecraft.gamemode", "lock");
-        assertEquals(EntryPattern.parse("minecraft.gamemode"), entry.pattern());
-        assertEquals(Optional.of(Mode.LOCK), entry.parsedMode());
+    void anEntryReadsItsPattern() {
+        assertEquals(EntryPattern.parse("minecraft.gamemode"), new PermissionEntry("minecraft.gamemode").pattern());
+    }
+
+    @Test
+    void anOldModeIsReadAndDropped() {
+        com.google.gson.Gson gson = new com.google.gson.Gson();
+        PermissionEntry read = gson.fromJson("{\"command\":\"minecraft.time\",\"mode\":\"lock\"}", PermissionEntry.class);
+        assertEquals(new PermissionEntry("minecraft.time"), read);
+        assertEquals("{\"command\":\"minecraft.time\"}", gson.toJson(read));
     }
 }

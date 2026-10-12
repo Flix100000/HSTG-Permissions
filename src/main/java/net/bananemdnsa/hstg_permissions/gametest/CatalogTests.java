@@ -45,7 +45,7 @@ public final class CatalogTests {
                 helper.fail("tp must be known as an alias of teleport, got " + catalog.aliasTargets().get("tp"));
                 return;
             }
-            if (catalog.problems(new PermissionEntry("minecraft.op", null)).stream()
+            if (catalog.problems(new PermissionEntry("minecraft.op")).stream()
                     .noneMatch(problem -> problem.kind() == EntryProblems.Kind.PROTECTED)) {
                 helper.fail("an entry on /op must be flagged from the server's protected list");
                 return;

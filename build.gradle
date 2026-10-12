@@ -112,6 +112,8 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
     // The tree code is plain Brigadier; tests get it directly instead of all of Minecraft.
     testImplementation "com.mojang:brigadier:1.3.10"
+    // The stage file is read with Gson; one test pins how an old entry is read.
+    testImplementation "com.google.code.gson:gson:2.10.1"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 

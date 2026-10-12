@@ -5,37 +5,31 @@ import java.util.List;
 import java.util.Optional;
 
 import net.bananemdnsa.hstg_permissions.rules.EntryPattern;
-import net.bananemdnsa.hstg_permissions.rules.Mode;
 import net.bananemdnsa.hstg_permissions.rules.PermissionEntry;
 
 /**
  * The entries of one stage while the editor has it open.
  *
- * <p>Command and mode are kept exactly as read: a hand-edited entry the editor cannot read is shown
- * as broken and written back untouched, never dropped or "fixed" on save.
+ * <p>Commands are kept exactly as read: a hand-edited entry the editor cannot read is shown as
+ * broken and written back untouched, never dropped or "fixed" on save.
  */
 public final class EntryList {
 
-    public enum Change { ADDED, REMOVED, SWITCHED }
+    public enum Change { ADDED, REMOVED }
 
     /** How an entry reaches a row of the picker: named itself, or covered from above. */
-    public record Mark(Mode mode, boolean inherited) {}
+    public enum Mark { DIRECT, INHERITED }
 
     private final List<String> commands = new ArrayList<>();
-    private final List<String> modes = new ArrayList<>();
 
     public void load(List<PermissionEntry> entries) {
         commands.clear();
-        modes.clear();
-        for (PermissionEntry entry : entries) {
-            commands.add(entry.command());
-            modes.add(entry.mode());
-        }
+        for (PermissionEntry entry : entries) commands.add(entry.command());
     }
 
     public List<PermissionEntry> toEntries() {
         List<PermissionEntry> entries = new ArrayList<>(commands.size());
-        for (int i = 0; i < commands.size(); i++) entries.add(entryAt(i));
+        for (String command : commands) entries.add(new PermissionEntry(command));
         return entries;
     }
 
@@ -49,73 +43,36 @@ public final class EntryList {
     }
 
     public PermissionEntry entryAt(int index) {
-        return new PermissionEntry(commands.get(index), modes.get(index));
-    }
-
-    public Optional<Mode> mode(int index) {
-        return Mode.parse(modes.get(index));
-    }
-
-    public void setMode(int index, Mode mode) {
-        modes.set(index, mode.id());
-    }
-
-    /**
-     * Sets the mode a click asked for. False when nothing changed, so a click on the half that is
-     * already chosen does not mark the stage dirty; an unreadable mode always counts as a change.
-     */
-    public boolean switchTo(int index, Mode mode) {
-        if (mode(index).orElse(null) == mode) return false;
-        setMode(index, mode);
-        return true;
+        return new PermissionEntry(commands.get(index));
     }
 
     public void removeAt(int index) {
         if (index < 0 || index >= commands.size()) return;
         commands.remove(index);
-        modes.remove(index);
     }
 
-    /** What a click in the picker does: add, take out again in the same mode, or switch the mode. */
-    public Change pick(String command, Mode mode) {
+    /** What a click in the picker does: add the command, or take it out again if it is already there. */
+    public Change pick(String command) {
         int index = indexOfSame(command);
         if (index < 0) {
             commands.add(command);
-            modes.add(mode.id());
             return Change.ADDED;
         }
-        if (mode(index).orElse(null) == mode) {
-            removeAt(index);
-            return Change.REMOVED;
-        }
-        setMode(index, mode);
-        return Change.SWITCHED;
+        removeAt(index);
+        return Change.REMOVED;
     }
 
     public Optional<Mark> markFor(String rowEntry) {
         Optional<EntryPattern> row = EntryPattern.parse(rowEntry);
         if (row.isEmpty()) return Optional.empty();
-        Mark inherited = null;
-        int inheritedSpecificity = -1;
-        for (int i = 0; i < commands.size(); i++) {
-            Optional<EntryPattern> entry = EntryPattern.parse(commands.get(i));
-            Optional<Mode> mode = mode(i);
-            if (entry.isEmpty() || mode.isEmpty()) continue;
-            if (sameTarget(entry.get(), row.get())) return Optional.of(new Mark(mode.get(), false));
-            if (covers(entry.get(), row.get()) && entry.get().specificity() > inheritedSpecificity) {
-                inherited = new Mark(mode.get(), true);
-                inheritedSpecificity = entry.get().specificity();
-            }
+        boolean inherited = false;
+        for (String command : commands) {
+            Optional<EntryPattern> entry = EntryPattern.parse(command);
+            if (entry.isEmpty()) continue;
+            if (sameTarget(entry.get(), row.get())) return Optional.of(Mark.DIRECT);
+            if (covers(entry.get(), row.get())) inherited = true;
         }
-        return Optional.ofNullable(inherited);
-    }
-
-    public int count(Mode mode) {
-        int count = 0;
-        for (int i = 0; i < commands.size(); i++) {
-            if (mode(i).orElse(null) == mode) count++;
-        }
-        return count;
+        return inherited ? Optional.of(Mark.INHERITED) : Optional.empty();
     }
 
     private int indexOfSame(String command) {

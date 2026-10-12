@@ -120,8 +120,8 @@ class ResolverTest {
     @Test
     void unreadableEntriesNeverReachTheResolver() {
         List<Candidate> candidates = new ArrayList<>();
-        for (PermissionEntry entry : List.of(new PermissionEntry("minecraft..gamemode", null),
-                new PermissionEntry(null, null))) {
+        for (PermissionEntry entry : List.of(new PermissionEntry("minecraft..gamemode"),
+                new PermissionEntry(null))) {
             entry.pattern().ifPresent(pattern -> candidates.add(new Candidate(pattern, false, "s")));
         }
         assertEquals(Verdict.DEFAULT, Resolver.decide(CREATIVE, candidates, RULES).verdict());

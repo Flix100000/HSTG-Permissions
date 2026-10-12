@@ -17,28 +17,28 @@ class EntryStatusTest {
 
     @Test
     void withoutACatalogNothingIsCalledMissing() {
-        assertNull(EntryStatus.of(new PermissionEntry("minecraft.gamemode.creatve", null), null).problem());
-        assertNull(EntryStatus.of(new PermissionEntry("minecraft.op", null), null).problem());
+        assertNull(EntryStatus.of(new PermissionEntry("minecraft.gamemode.creatve"), null).problem());
+        assertNull(EntryStatus.of(new PermissionEntry("minecraft.op"), null).problem());
     }
 
     @Test
     void brokenEntriesShowEvenWithoutACatalog() {
         assertEquals(EntryProblems.Kind.BAD_PATH,
-                EntryStatus.of(new PermissionEntry("minecraft..gamemode", null), null).problem().kind());
+                EntryStatus.of(new PermissionEntry("minecraft..gamemode"), null).problem().kind());
     }
 
     @Test
     void aProtectedCommandIsAWarning() {
-        EntryStatus status = EntryStatus.of(new PermissionEntry("minecraft.op", null), catalog);
+        EntryStatus status = EntryStatus.of(new PermissionEntry("minecraft.op"), catalog);
         assertEquals(EntryProblems.Kind.PROTECTED, status.problem().kind());
         assertEquals(EntryProblems.Level.WARN, status.level());
     }
 
     @Test
     void aMissingPathIsAWarning() {
-        EntryStatus status = EntryStatus.of(new PermissionEntry("waystones.waystone", null), catalog);
+        EntryStatus status = EntryStatus.of(new PermissionEntry("waystones.waystone"), catalog);
         assertEquals(EntryProblems.Kind.NOT_FOUND, status.problem().kind());
         assertEquals(EntryProblems.Level.WARN, status.level());
-        assertNull(EntryStatus.of(new PermissionEntry("minecraft.gamemode.creative", null), catalog).level());
+        assertNull(EntryStatus.of(new PermissionEntry("minecraft.gamemode.creative"), catalog).level());
     }
 }
