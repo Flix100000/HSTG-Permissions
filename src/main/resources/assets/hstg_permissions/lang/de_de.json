@@ -20,7 +20,7 @@
   "config.hstg_permissions.settings.lockedMessage.option.vanilla": "Wie Vanilla",
   "config.hstg_permissions.settings.lockedMessageText": "Text der Meldung",
   "config.hstg_permissions.settings.lockedMessageText.desc": "{stage} ist die fehlende Stage (??? wenn sie ihren Namen verbirgt), {command} der getippte Command, & leitet einen Farbcode ein. Feld leeren für den übersetzten Standardtext.",
-  "config.hstg_permissions.settings.protectedCommands": "Schutzliste",
+  "config.hstg_permissions.settings.protectedCommands": "Schutzliste §7(zum Bearbeiten klicken)",
   "config.hstg_permissions.settings.protectedCommands.desc": "Commands, die eine Stage nur wegnehmen, nie geben kann.",
   "config.hstg_permissions.protected.default": "Standard",
   "config.hstg_permissions.protected.done": "Fertig",

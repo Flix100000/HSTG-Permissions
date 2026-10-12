@@ -20,7 +20,7 @@
   "config.hstg_permissions.settings.lockedMessage.option.vanilla": "Like vanilla",
   "config.hstg_permissions.settings.lockedMessageText": "Text of the message",
   "config.hstg_permissions.settings.lockedMessageText.desc": "{stage} is the missing stage (??? if it hides its name), {command} what was typed, & starts a colour code. Clear the field for the translated default.",
-  "config.hstg_permissions.settings.protectedCommands": "Protected commands",
+  "config.hstg_permissions.settings.protectedCommands": "Protected commands §7(click to edit)",
   "config.hstg_permissions.settings.protectedCommands.desc": "Commands a stage can take away but never hand out.",
   "config.hstg_permissions.protected.default": "Default",
   "config.hstg_permissions.protected.done": "Done",
