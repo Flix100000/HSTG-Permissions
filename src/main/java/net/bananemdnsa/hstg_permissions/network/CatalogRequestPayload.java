@@ -1,6 +1,7 @@
 package net.bananemdnsa.hstg_permissions.network;
 
 import net.bananemdnsa.hstg_permissions.HSTGPermissions;
+import net.bananemdnsa.hstg_permissions.catalog.CatalogCodec;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -20,7 +21,11 @@ public record CatalogRequestPayload() implements CustomPacketPayload {
     public static void handle(CatalogRequestPayload request, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (!(context.player() instanceof ServerPlayer player)) return;
-            CatalogAnswer.forPlayer(player).ifPresent(catalog -> context.reply(new CatalogPayload(catalog)));
+            CatalogAnswer.forPlayer(player).ifPresent(catalog -> {
+                HSTGPermissions.LOGGER.info("Sending {} command paths ({} bytes) to {}", catalog.nodes().size(),
+                        CatalogCodec.encode(catalog).length, player.getGameProfile().getName());
+                context.reply(new CatalogPayload(catalog));
+            });
         });
     }
 

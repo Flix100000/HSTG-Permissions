@@ -78,4 +78,22 @@ class PickerTreeTest {
         // waystones.tp would be found: a path ignores its mod, so it names vanilla's /tp.
         assertFalse(tree.rows(Set.of(), "waystones.waystone").get(0).found());
     }
+
+    @Test
+    void searchContextRowsCannotBePicked() {
+        List<PickerRow> rows = tree.rows(Set.of(), "creat");
+        java.util.Map<String, PickerRow> byEntry = new java.util.HashMap<>();
+        rows.forEach(row -> byEntry.put(row.entry(), row));
+        assertTrue(byEntry.get("minecraft.*").context());
+        assertTrue(byEntry.get("minecraft.gamemode").context());
+        assertFalse(byEntry.get("minecraft.gamemode.creative").context());
+        assertTrue(tree.rows(Set.of("minecraft.*"), "").stream().noneMatch(PickerRow::context));
+    }
+
+    @Test
+    void spacesInASearchReadAsDots() {
+        PickerRow first = tree.rows(Set.of(), "gamemode creative").get(0);
+        assertEquals(PickerRow.Kind.TYPED, first.kind());
+        assertEquals("minecraft.gamemode.creative", first.entry());
+    }
 }

@@ -65,4 +65,12 @@ class TypedPathTest {
         assertEquals("waystones.tp", resolve("waystones.tp"));
         assertEquals("minecraft..op", resolve("minecraft..op"));
     }
+
+    @Test
+    void normalizeQueryReadsSpacesAndSlashesAsPath() {
+        assertEquals("gamemode", TypedPath.normalizeQuery("/gamemode"));
+        assertEquals("gamemode.creative", TypedPath.normalizeQuery(" Gamemode  Creative "));
+        assertEquals("@ftb", TypedPath.normalizeQuery("@FTB"));
+        assertEquals("", TypedPath.normalizeQuery(null));
+    }
 }

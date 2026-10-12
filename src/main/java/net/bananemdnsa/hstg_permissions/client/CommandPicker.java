@@ -71,7 +71,7 @@ public final class CommandPicker extends AbstractSearchableList<PickerRow> {
     protected List<PickerRow> loadEntries() {
         seenVersion = ClientCatalog.version();
         PickerTree current = currentTree();
-        if (current == null) return List.of(PickerRow.info(waitingText()));
+        if (current == null) return waitingRows();
         return current.rows(expanded, "");
     }
 
@@ -89,12 +89,12 @@ public final class CommandPicker extends AbstractSearchableList<PickerRow> {
         String query = searchBar.getText() == null ? "" : searchBar.getText();
         filtered.clear();
         if (current == null) {
-            String typed = query.trim().toLowerCase(Locale.ROOT);
+            String typed = TypedPath.normalizeQuery(query);
             if (TypedPath.looksLikeEntry(typed)) {
                 // Nothing to check it against, so it is not marked as missing either.
-                filtered.add(new PickerRow(PickerRow.Kind.TYPED, typed, typed, 0, false, false, null, 0, true));
+                filtered.add(new PickerRow(PickerRow.Kind.TYPED, typed, typed, 0, false, false, null, 0, true, false));
             }
-            filtered.add(PickerRow.info(waitingText()));
+            filtered.addAll(waitingRows());
             return;
         }
         filtered.addAll(current.rows(expanded, query));
@@ -102,12 +102,30 @@ public final class CommandPicker extends AbstractSearchableList<PickerRow> {
 
     @Override
     protected boolean isHeaderRow(int index) {
-        return index < filteredEntries.size() && filteredEntries.get(index).kind() == PickerRow.Kind.INFO;
+        if (index >= filteredEntries.size()) return false;
+        PickerRow row = filteredEntries.get(index);
+        return row.kind() == PickerRow.Kind.INFO || row.context();
     }
 
     @Override
     protected void renderHeaderRow(GuiGraphics g, Font font, PickerRow entry, int x, int y, int w, int h) {
-        drawRowText(g, font, entry.label(), x, y, w, false);
+        if (!entry.context()) {
+            drawRowText(g, font, entry.label(), x, y, w, false);
+            return;
+        }
+        // No caret: a header row cannot be clicked, so it could not open or close anything.
+        int textX = x + entry.depth() * INDENT + CARET_W;
+        String text = font.plainSubstrByWidth(label(entry), w - (textX - x) - 6);
+        g.drawString(font, text, textX + 3, y + 4, 0xFF777777, false);
+    }
+
+    @Override
+    protected void renderSelectedRow(GuiGraphics g, Font font, String value, PickerRow entry,
+                                     int x, int y, int w, int h, boolean hovered, int rowIndex) {
+        // The tree around a row is gone here, so the stored value is the only thing that places it.
+        int chipW = 12;
+        drawRowMarqueeText(g, font, value, x + 4, y, w - 4 - chipW - 22, h, hovered, rowIndex);
+        list.markFor(entry.entry()).ifPresent(mark -> drawChip(g, font, mark, x + w - chipW - 2, y + 2, chipW, h - 4));
     }
 
     @Override
@@ -190,9 +208,12 @@ public final class CommandPicker extends AbstractSearchableList<PickerRow> {
         return tree;
     }
 
-    private static String waitingText() {
-        return Component.translatable(ClientCatalog.state() == ClientCatalog.State.UNAVAILABLE
-                ? "editor.hstg_permissions.picker.unavailable"
-                : "editor.hstg_permissions.picker.loading").getString();
+    private static List<PickerRow> waitingRows() {
+        if (ClientCatalog.state() != ClientCatalog.State.UNAVAILABLE) {
+            return List.of(PickerRow.info(Component.translatable("editor.hstg_permissions.picker.loading").getString()));
+        }
+        return List.of(
+                PickerRow.info(Component.translatable("editor.hstg_permissions.picker.unavailable").getString()),
+                PickerRow.info(Component.translatable("editor.hstg_permissions.picker.unavailable.hint").getString()));
     }
 }

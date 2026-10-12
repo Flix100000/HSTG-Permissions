@@ -14,7 +14,8 @@
   "editor.hstg_permissions.picker.search": "Search commands... (@mod)",
   "editor.hstg_permissions.picker.all": "All commands",
   "editor.hstg_permissions.picker.loading": "Loading the server's commands",
-  "editor.hstg_permissions.picker.unavailable": "This server does not list its commands. Type a path into the search.",
+  "editor.hstg_permissions.picker.unavailable": "This server sends no command list.",
+  "editor.hstg_permissions.picker.unavailable.hint": "Type a path, like minecraft.gamemode",
   "editor.hstg_permissions.picker.typed": "Add: %s",
   "editor.hstg_permissions.picker.not_found": "not found",
   "message.hstg_permissions.command_locked": "This command is still locked"

@@ -38,6 +38,12 @@ public final class ClientCatalog {
         version++;
     }
 
+    public static synchronized void reset() {
+        catalog = null;
+        state = State.NONE;
+        version++;
+    }
+
     public static synchronized State state() {
         return state;
     }

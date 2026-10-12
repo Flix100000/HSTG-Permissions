@@ -31,4 +31,14 @@ class ClientCatalogTest {
         assertEquals(ClientCatalog.State.UNAVAILABLE, ClientCatalog.state());
         assertNull(ClientCatalog.get());
     }
+
+    @Test
+    void leavingAServerForgetsItsCommands() {
+        ClientCatalog.received(SampleTree.catalog(List.of()));
+        long before = ClientCatalog.version();
+        ClientCatalog.reset();
+        assertEquals(ClientCatalog.State.NONE, ClientCatalog.state());
+        assertNull(ClientCatalog.get());
+        assertTrue(ClientCatalog.version() > before);
+    }
 }

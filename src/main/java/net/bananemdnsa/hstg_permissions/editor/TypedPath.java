@@ -30,11 +30,22 @@ public final class TypedPath {
     }
 
     /**
+     * What a search box holds, read as a path: "/gamemode" and "gamemode creative" work like
+     * "gamemode" and "gamemode.creative". An "@mod" filter only loses case and padding.
+     */
+    public static String normalizeQuery(String query) {
+        String text = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        if (text.startsWith("@")) return text;
+        if (text.startsWith("/")) text = text.substring(1);
+        return text.replaceAll("\\s+", ".");
+    }
+
+    /**
      * Whether a search should also be offered as an entry to add. A plain word is a search; a path
      * (with a dot) or a star is something to add. An "@" is the mod filter, never an entry.
      */
     public static boolean looksLikeEntry(String query) {
-        String text = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        String text = normalizeQuery(query);
         if (text.isEmpty() || text.startsWith("@")) return false;
         if (!text.contains(".") && !text.contains("*")) return false;
         return EntryPattern.parse(text).isPresent();
