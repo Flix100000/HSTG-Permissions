@@ -56,7 +56,7 @@ public final class ProtectedListScreen extends Screen {
         }
         g.pose().pushPose();
         g.pose().translate(0, 0, OVERLAY_Z);
-        g.fill(0, 0, this.width, this.height, 0xC0000000);
+        g.fill(0, 0, this.width, this.height, 0x80000000);
         picker.render(g, this.font, mouseX, mouseY);
         g.pose().popPose();
         // Esc or a click beside the window hid it: leave without storing anything.

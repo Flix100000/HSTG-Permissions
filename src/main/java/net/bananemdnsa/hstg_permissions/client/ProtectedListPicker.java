@@ -52,6 +52,8 @@ public final class ProtectedListPicker extends AbstractSearchableList<PickerRow>
         super(Component.translatable("config.hstg_permissions.protected.search").getString(), value -> { }, null);
         this.selection = selection;
         this.onDone = onDone;
+        // Esc after a search should only leave the search, not throw away every tick.
+        searchBar.setEscapeReleasesFocus(true);
     }
 
     @Override
