@@ -1,5 +1,15 @@
 {
   "editor.hstg_permissions.tab.commands": "Commands",
   "editor.hstg_permissions.tooltip.commands": "Lock or grant commands with this stage",
+  "editor.hstg_permissions.mode.lock": "Lock",
+  "editor.hstg_permissions.mode.grant": "Grant",
+  "editor.hstg_permissions.mode.lock.short": "L",
+  "editor.hstg_permissions.mode.grant.short": "G",
+  "editor.hstg_permissions.count": "%1$s entries · %2$s lock, %3$s grant",
+  "editor.hstg_permissions.problem.bad_path": "%1$s is not a command path. Write it like minecraft.gamemode.creative, mod.* or *.",
+  "editor.hstg_permissions.problem.bad_mode": "%1$s has the mode '%2$s'. Pick Lock or Grant.",
+  "editor.hstg_permissions.problem.protected_grant": "%1$s is on the protected list and can only be locked. This grant does nothing. The list is in the server config.",
+  "editor.hstg_permissions.problem.never_lockable": "%1$s belongs to History Stages or HSTG: Permissions, which can never be locked. This lock does nothing.",
+  "editor.hstg_permissions.problem.not_found": "%1$s does not exist on this server. A typo, or the mod is missing. The entry stays and works once the command exists.",
   "message.hstg_permissions.command_locked": "This command is still locked"
 }
