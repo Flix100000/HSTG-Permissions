@@ -25,7 +25,7 @@ public final class CategoryTests {
     public static void aStageFileReachesTheCategory(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         try {
-            TestStages.global("category_file", "lock minecraft.gamemode");
+            TestStages.global("category_file", "minecraft.gamemode");
             TestStages.reload(server);
             UUID player = UUID.randomUUID();
 

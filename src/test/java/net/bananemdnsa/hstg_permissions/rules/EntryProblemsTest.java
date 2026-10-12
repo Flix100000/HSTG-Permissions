@@ -14,19 +14,19 @@ class EntryProblemsTest {
     private static final ProtectionRules RULES =
             ProtectionRules.of(ProtectionRules.DEFAULT_PROTECTED, ProtectionRules.NEVER_LOCKABLE_MODS);
 
-    private static List<Problem> check(String command, String mode) {
-        return EntryProblems.check(new PermissionEntry(command, mode), RULES, pattern -> true, null);
+    private static List<Problem> check(String command) {
+        return EntryProblems.check(new PermissionEntry(command, null), RULES, pattern -> true, null);
     }
 
     @Test
     void aGoodEntryHasNoProblems() {
-        assertTrue(check("minecraft.gamemode.creative", "lock").isEmpty());
-        assertTrue(check("*", "grant").isEmpty());
+        assertTrue(check("minecraft.gamemode.creative").isEmpty());
+        assertTrue(check("*").isEmpty());
     }
 
     @Test
     void anUnreadablePathIsAnError() {
-        List<Problem> problems = check("minecraft..op", "lock");
+        List<Problem> problems = check("minecraft..op");
         assertEquals(1, problems.size());
         assertEquals(Level.ERROR, problems.get(0).level());
         assertEquals(EntryProblems.Kind.BAD_PATH, problems.get(0).kind());
@@ -34,33 +34,31 @@ class EntryProblemsTest {
     }
 
     @Test
-    void anUnknownModeIsAnError() {
-        List<Problem> problems = check("minecraft.gamemode", "deny");
-        assertEquals(Level.ERROR, problems.get(0).level());
-        assertEquals(EntryProblems.Kind.BAD_MODE, problems.get(0).kind());
-        assertTrue(problems.get(0).message().contains("deny"));
-        assertEquals(Level.ERROR, check("minecraft.gamemode", null).get(0).level());
+    void anOldModeIsIgnored() {
+        assertTrue(EntryProblems.check(new PermissionEntry("minecraft.gamemode", "deny"), RULES,
+                pattern -> true, null).isEmpty());
     }
 
     @Test
-    void aGrantOnTheProtectedListIsAnError() {
-        List<Problem> problems = check("minecraft.op", "grant");
+    void aProtectedCommandIsAWarning() {
+        List<Problem> problems = check("minecraft.op");
         assertEquals(1, problems.size());
-        assertEquals(Level.ERROR, problems.get(0).level());
-        assertEquals(EntryProblems.Kind.PROTECTED_GRANT, problems.get(0).kind());
-        assertTrue(check("minecraft.op", "lock").isEmpty());
+        assertEquals(Level.WARN, problems.get(0).level());
+        assertEquals(EntryProblems.Kind.PROTECTED, problems.get(0).kind());
     }
 
     @Test
-    void aLockOnHistoryStagesIsAWarning() {
-        assertEquals(Level.WARN, check("historystages.history", "lock").get(0).level());
-        assertEquals(EntryProblems.Kind.NEVER_LOCKABLE, check("historystages.history", "lock").get(0).kind());
-        assertEquals(Level.WARN, check("hstg_permissions.*", "lock").get(0).level());
+    void aHistoryStagesCommandIsAWarning() {
+        assertEquals(Level.WARN, check("historystages.history").get(0).level());
+        assertTrue(check("historystages.history").stream()
+                .anyMatch(problem -> problem.kind() == EntryProblems.Kind.NEVER_LOCKABLE));
+        assertEquals(Level.WARN, check("hstg_permissions.*").get(0).level());
+        assertEquals(EntryProblems.Kind.NEVER_LOCKABLE, check("hstg_permissions.*").get(0).kind());
     }
 
     @Test
     void aPathTheServerDoesNotHaveIsAWarning() {
-        List<Problem> problems = EntryProblems.check(new PermissionEntry("minecraft.gamemode.creatve", "lock"),
+        List<Problem> problems = EntryProblems.check(new PermissionEntry("minecraft.gamemode.creatve", null),
                 RULES, pattern -> false, null);
         assertEquals(1, problems.size());
         assertEquals(Level.WARN, problems.get(0).level());
@@ -69,16 +67,17 @@ class EntryProblemsTest {
 
     @Test
     void withoutATreeNothingIsCalledMissing() {
-        assertTrue(EntryProblems.check(new PermissionEntry("minecraft.gamemode.creatve", "lock"), RULES, null, null).isEmpty());
+        assertTrue(EntryProblems.check(new PermissionEntry("minecraft.gamemode.creatve", null), RULES, null, null).isEmpty());
     }
 
     @Test
-    void theRealModDecidesWhetherALockIsDropped() {
-        assertTrue(EntryProblems.check(new PermissionEntry("historystages.gamemode", "lock"), RULES,
+    void theRealModDecidesWhetherItIsNeverLockable() {
+        assertTrue(EntryProblems.check(new PermissionEntry("historystages.gamemode", null), RULES,
                 pattern -> true, pattern -> "minecraft").isEmpty());
-        List<Problem> problems = EntryProblems.check(new PermissionEntry("minecraft.history", "lock"), RULES,
+        List<Problem> problems = EntryProblems.check(new PermissionEntry("minecraft.history", null), RULES,
                 pattern -> true, pattern -> "historystages");
-        assertEquals(1, problems.size());
-        assertEquals(Level.WARN, problems.get(0).level());
+        // history is protected as well, so it is flagged twice.
+        assertTrue(problems.stream().anyMatch(problem -> problem.kind() == EntryProblems.Kind.NEVER_LOCKABLE));
+        assertTrue(problems.stream().allMatch(problem -> problem.level() == Level.WARN));
     }
 }

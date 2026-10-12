@@ -28,7 +28,7 @@ public final class GuardTests {
     public static void anOpIsLockedOutUntilTheStageIsUnlocked(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
-        String stage = TestStages.global("guard_op", "lock minecraft.gamemode");
+        String stage = TestStages.global("guard_op", "minecraft.gamemode");
         try {
             TestStages.reload(server);
             if (TestPlayers.canUse(player, "gamemode")) {
@@ -57,7 +57,7 @@ public final class GuardTests {
     public static void theConsoleIsNeverLocked(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         try {
-            TestStages.global("guard_console", "lock *");
+            TestStages.global("guard_console", "minecraft.time");
             TestStages.reload(server);
             CommandNode<CommandSourceStack> gamemode = server.getCommands().getDispatcher().getRoot().getChild("gamemode");
             if (!gamemode.canUse(server.createCommandSourceStack())) {
@@ -71,18 +71,14 @@ public final class GuardTests {
     }
 
     @GameTest(template = "empty", batch = "hstgp_guard_history")
-    public static void historyCommandsSurviveAStarLock(GameTestHelper helper) {
+    public static void historyCommandsCannotBeTaken(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
-            TestStages.global("guard_history", "lock *");
+            TestStages.global("guard_history", "historystages.history");
             TestStages.reload(server);
-            if (TestPlayers.canUse(player, "gamemode")) {
-                helper.fail("* must lock an ordinary command, or the check below proves nothing");
-                return;
-            }
             if (!TestPlayers.canUse(player, "history")) {
-                helper.fail("/history must never be lockable, not even through *");
+                helper.fail("/history must never be lockable, not even by a stage that names it");
                 return;
             }
             helper.succeed();
@@ -93,16 +89,16 @@ public final class GuardTests {
     }
 
     @GameTest(template = "empty", batch = "hstgp_guard_history_run")
-    public static void historyCommandsRunUnderAStarLock(GameTestHelper helper) {
+    public static void historyCommandsRunWhenTaken(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
-            TestStages.global("guard_history_run", "lock *");
+            TestStages.global("guard_history_run", "historystages.history", "hstg_permissions.anything");
             TestStages.reload(server);
             // HSTG has no list command; zone info only reads the player's own selection.
             Inbox inbox = TestPlayers.run(player, "history zone info");
             if (inbox.mentions("message.hstg_permissions.command_locked") || inbox.mentions("command.unknown.command")) {
-                helper.fail("/history must run under a * lock, got " + inbox);
+                helper.fail("/history must run while its stage is missing, got " + inbox);
                 return;
             }
             if (!inbox.mentions("command.historystages.zone.none")) {
@@ -121,7 +117,7 @@ public final class GuardTests {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
-            TestStages.global("guard_teleport", "lock minecraft.teleport");
+            TestStages.global("guard_teleport", "minecraft.teleport");
             TestStages.reload(server);
             if (TestPlayers.canUse(player, "teleport") || TestPlayers.canUse(player, "tp")) {
                 helper.fail("a lock on teleport must reach tp as well");
@@ -139,7 +135,7 @@ public final class GuardTests {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
-            TestStages.global("guard_tp", "lock minecraft.tp");
+            TestStages.global("guard_tp", "minecraft.tp");
             TestStages.reload(server);
             if (TestPlayers.canUse(player, "teleport")) {
                 helper.fail("a lock on tp must reach teleport as well");
@@ -157,7 +153,7 @@ public final class GuardTests {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
-            TestStages.global("guard_rebuilt", "lock minecraft.gamemode");
+            TestStages.global("guard_rebuilt", "minecraft.gamemode");
             TestStages.reload(server);
             // What /reload does: a new Commands, which fires RegisterCommandsEvent on a new tree.
             Commands rebuilt = new Commands(Commands.CommandSelection.DEDICATED,
@@ -197,7 +193,7 @@ public final class GuardTests {
     public static void aStarGrantOpensEverythingButProtectedCommands(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.create(helper);
-        String stage = TestStages.individual("guard_star_grant", "grant *");
+        String stage = TestStages.individual("guard_star_grant", "*");
         try {
             TestStages.reload(server);
             if (TestPlayers.canUse(player, "gamemode")) {
@@ -207,7 +203,7 @@ public final class GuardTests {
             StageStates.unlockIndividual(stage, player);
             PermissionService.forget(player.getUUID());
             if (!TestPlayers.canUse(player, "gamemode")) {
-                helper.fail("granting * must open /gamemode without OP");
+                helper.fail("holding * must open /gamemode without OP");
                 return;
             }
             if (TestPlayers.canUse(player, "op")) {
@@ -223,20 +219,20 @@ public final class GuardTests {
     }
 
     @GameTest(template = "empty", batch = "hstgp_guard_protected")
-    public static void aGrantOnAProtectedCommandIsIgnored(GameTestHelper helper) {
+    public static void aStageCannotHandOutAProtectedCommand(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.create(helper);
-        String stage = TestStages.individual("guard_protected", "grant minecraft.op", "grant minecraft.time");
+        String stage = TestStages.individual("guard_protected", "minecraft.op", "minecraft.time");
         try {
             TestStages.reload(server);
             StageStates.unlockIndividual(stage, player);
             PermissionService.forget(player.getUUID());
             if (!TestPlayers.canUse(player, "time")) {
-                helper.fail("the grant on /time from the same stage must work, or the check below proves nothing");
+                helper.fail("the entry for /time in the same stage must work, or the check below proves nothing");
                 return;
             }
             if (TestPlayers.canUse(player, "op")) {
-                helper.fail("a grant on /op must be ignored");
+                helper.fail("a stage must not hand out /op");
                 return;
             }
             helper.succeed();

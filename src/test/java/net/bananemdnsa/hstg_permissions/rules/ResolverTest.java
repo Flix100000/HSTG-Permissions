@@ -11,19 +11,16 @@ import org.junit.jupiter.api.Test;
 class ResolverTest {
 
     private static final ProtectionRules RULES =
-            ProtectionRules.of(List.of("op", "execute"), ProtectionRules.NEVER_LOCKABLE_MODS);
+            ProtectionRules.of(List.of("op", "execute", "history"), ProtectionRules.NEVER_LOCKABLE_MODS);
     private static final CommandTarget CREATIVE = CommandTarget.of("minecraft", "gamemode", "creative");
+    private static final CommandTarget SURVIVAL = CommandTarget.of("minecraft", "gamemode", "survival");
 
-    private static Candidate lock(String pattern) {
-        return candidate(pattern, Mode.LOCK, true);
+    private static Candidate held(String pattern) {
+        return new Candidate(EntryPattern.parse(pattern).orElseThrow(), true, "has_" + pattern);
     }
 
-    private static Candidate grant(String pattern) {
-        return candidate(pattern, Mode.GRANT, true);
-    }
-
-    private static Candidate candidate(String pattern, Mode mode, boolean applies) {
-        return new Candidate(EntryPattern.parse(pattern).orElseThrow(), mode, applies, "stage_" + pattern);
+    private static Candidate missing(String pattern) {
+        return new Candidate(EntryPattern.parse(pattern).orElseThrow(), false, "lacks_" + pattern);
     }
 
     private static Verdict verdict(CommandTarget target, Candidate... candidates) {
@@ -31,117 +28,101 @@ class ResolverTest {
     }
 
     @Test
-    void noEntryLeavesTheVanillaCheck() {
+    void noEntryLeavesItToMinecraft() {
         assertEquals(Verdict.DEFAULT, verdict(CREATIVE));
+        assertEquals(Verdict.DEFAULT, verdict(CREATIVE, missing("minecraft.time")));
     }
 
     @Test
-    void aLockWhoseStageIsMissingLocks() {
-        assertEquals(Verdict.LOCK, verdict(CREATIVE, lock("minecraft.gamemode")));
+    void aStageThePlayerLacksTakesTheCommand() {
+        assertEquals(Verdict.LOCK, verdict(CREATIVE, missing("minecraft.gamemode")));
     }
 
     @Test
-    void entriesThatDoNotApplyAreIgnored() {
-        assertEquals(Verdict.DEFAULT, verdict(CREATIVE, candidate("minecraft.gamemode", Mode.LOCK, false)));
-        assertEquals(Verdict.DEFAULT, verdict(CREATIVE, candidate("minecraft.gamemode", Mode.GRANT, false)));
+    void aStageThePlayerHoldsGivesTheCommand() {
+        assertEquals(Verdict.GRANT, verdict(CREATIVE, held("minecraft.gamemode")));
     }
 
     @Test
-    void entriesForOtherCommandsAreIgnored() {
-        assertEquals(Verdict.DEFAULT, verdict(CREATIVE, lock("minecraft.time")));
+    void oneHeldStageIsEnough() {
+        assertEquals(Verdict.GRANT, verdict(CREATIVE, missing("minecraft.gamemode"), held("minecraft.gamemode")));
     }
 
     @Test
-    void aGrantWhoseStageIsUnlockedGrants() {
-        assertEquals(Verdict.GRANT, verdict(CREATIVE, grant("minecraft.gamemode")));
-    }
-
-    @Test
-    void theMostSpecificEntryWins() {
-        assertEquals(Verdict.GRANT, verdict(CREATIVE, lock("minecraft.gamemode"), grant("minecraft.gamemode.creative")));
-        assertEquals(Verdict.LOCK, verdict(CREATIVE, grant("minecraft.gamemode"), lock("minecraft.gamemode.creative")));
-    }
-
-    @Test
-    void onEqualFootingLockWins() {
-        assertEquals(Verdict.LOCK, verdict(CREATIVE, grant("minecraft.gamemode"), lock("minecraft.gamemode")));
+    void theMostSpecificEntriesDecide() {
+        Candidate[] roles = { held("minecraft.gamemode"), missing("minecraft.gamemode.creative") };
+        assertEquals(Verdict.LOCK, verdict(CREATIVE, roles));
+        assertEquals(Verdict.GRANT, verdict(SURVIVAL, roles));
     }
 
     @Test
     void aWholeModIsWeakerThanAnyPath() {
-        assertEquals(Verdict.GRANT, verdict(CREATIVE, lock("minecraft.*"), grant("minecraft.gamemode")));
+        assertEquals(Verdict.GRANT, verdict(CommandTarget.of("minecraft", "time"), missing("minecraft.*"), held("minecraft.time")));
+        assertEquals(Verdict.LOCK, verdict(CREATIVE, missing("minecraft.*"), held("minecraft.time")));
     }
 
     @Test
-    void starIsTheWeakestLock() {
-        CommandTarget msg = CommandTarget.of("minecraft", "msg");
-        assertEquals(Verdict.GRANT, verdict(msg, lock("*"), grant("minecraft.msg")));
-        assertEquals(Verdict.LOCK, verdict(CREATIVE, lock("*"), grant("minecraft.msg")));
+    void theEverythingStageGivesEverything() {
+        assertEquals(Verdict.GRANT, verdict(CREATIVE, held("*")));
+        assertEquals(Verdict.GRANT, verdict(CREATIVE, held("*"), missing("minecraft.gamemode.creative")));
     }
 
     @Test
-    void aStarGrantBeatsEvenAMoreSpecificLock() {
-        assertEquals(Verdict.GRANT, verdict(CREATIVE, grant("*"), lock("minecraft.gamemode.creative")));
+    void theEverythingStageTakesNothing() {
+        assertEquals(Verdict.DEFAULT, verdict(CREATIVE, missing("*")));
+        assertEquals(Verdict.GRANT, verdict(CREATIVE, missing("*"), held("minecraft.gamemode")));
     }
 
     @Test
-    void protectedCommandsCanOnlyBeLocked() {
+    void protectedCommandsCanBeTakenButNotGiven() {
         CommandTarget op = CommandTarget.of("minecraft", "op", "steve");
-        assertEquals(Verdict.DEFAULT, verdict(op, grant("minecraft.op")));
-        assertEquals(Verdict.DEFAULT, verdict(op, grant("*")));
-        assertEquals(Verdict.LOCK, verdict(op, lock("minecraft.op")));
+        assertEquals(Verdict.LOCK, verdict(op, missing("minecraft.op")));
+        assertEquals(Verdict.DEFAULT, verdict(op, held("minecraft.op")));
+        assertEquals(Verdict.DEFAULT, verdict(op, held("*")));
+        assertEquals(Verdict.DEFAULT, verdict(CommandTarget.of("minecraft", "execute", "as"), held("minecraft.execute.as")));
     }
 
     @Test
-    void aSubcommandOfAProtectedCommandIsProtectedToo() {
-        CommandTarget executeAs = CommandTarget.of("minecraft", "execute", "as");
-        assertEquals(Verdict.DEFAULT, verdict(executeAs, grant("minecraft.execute.as")));
+    void historyStagesCommandsCanBeGivenButNeverTaken() {
+        CommandTarget hstgp = CommandTarget.of("hstg_permissions", "anything");
+        assertEquals(Verdict.DEFAULT, verdict(hstgp, missing("hstg_permissions.anything")));
+        assertEquals(Verdict.GRANT, verdict(hstgp, held("hstg_permissions.anything")));
+        // history is protected as well, so a stage can neither take nor give it.
+        CommandTarget history = CommandTarget.of("unknown", "history", "list");
+        assertEquals(Verdict.DEFAULT, verdict(history, missing("historystages.history")));
+        assertEquals(Verdict.DEFAULT, verdict(history, held("historystages.history")));
     }
 
     @Test
-    void historyStagesCommandsCanNeverBeLockedButCanBeGranted() {
-        CommandTarget history = CommandTarget.of("historystages", "history", "reload");
-        assertEquals(Verdict.DEFAULT, verdict(history, lock("*")));
-        assertEquals(Verdict.DEFAULT, verdict(history, lock("historystages.history")));
-        assertEquals(Verdict.GRANT, verdict(history, grant("historystages.history")));
-        assertEquals(Verdict.DEFAULT, verdict(CommandTarget.of("hstg_permissions", "anything"), lock("*")));
-    }
-
-    @Test
-    void historyStaysOpenEvenWhenItsModIsGuessedWrong() {
-        assertEquals(Verdict.DEFAULT, verdict(CommandTarget.of("unknown", "history", "list"), lock("*")));
-    }
-
-    @Test
-    void onlyTheWinningLocksAreNamed() {
+    void onlyTheMissingStagesAtTheTopAreNamed() {
         Decision decision = Resolver.decide(CREATIVE, List.of(
-                new Candidate(EntryPattern.parse("*").orElseThrow(), Mode.LOCK, true, "guest"),
-                new Candidate(EntryPattern.parse("minecraft.gamemode").orElseThrow(), Mode.LOCK, true, "builder"),
-                new Candidate(EntryPattern.parse("minecraft.gamemode").orElseThrow(), Mode.LOCK, true, "builder")),
+                new Candidate(EntryPattern.parse("minecraft.*").orElseThrow(), false, "guest"),
+                new Candidate(EntryPattern.parse("minecraft.gamemode").orElseThrow(), false, "builder"),
+                new Candidate(EntryPattern.parse("minecraft.gamemode").orElseThrow(), false, "builder"),
+                new Candidate(EntryPattern.parse("minecraft.gamemode").orElseThrow(), false, "admin")),
                 RULES);
         assertEquals(Verdict.LOCK, decision.verdict());
-        assertEquals(List.of("builder"), decision.lockingStages());
+        assertEquals(List.of("builder", "admin"), decision.lockingStages());
     }
 
     @Test
     void aliasSpellingsCountAsTheSamePath() {
         CommandTarget tp = new CommandTarget("minecraft", List.of(List.of("tp"), List.of("teleport")));
-        assertEquals(Verdict.LOCK, verdict(tp, grant("minecraft.tp"), lock("minecraft.teleport")));
+        assertEquals(Verdict.GRANT, verdict(tp, missing("minecraft.teleport"), held("minecraft.tp")));
+        assertEquals(Verdict.LOCK, verdict(tp, missing("minecraft.teleport")));
     }
 
     @Test
-    void aWrongModNameDoesNotSwitchALockOff() {
-        assertEquals(Verdict.LOCK, verdict(CREATIVE, lock("othermod.gamemode")));
+    void aWrongModNameStillNamesTheCommand() {
+        assertEquals(Verdict.LOCK, verdict(CREATIVE, missing("othermod.gamemode")));
     }
 
     @Test
     void unreadableEntriesNeverReachTheResolver() {
-        // The service drops what does not parse; this is the shape it builds the candidates from.
         List<Candidate> candidates = new ArrayList<>();
-        for (PermissionEntry entry : List.of(new PermissionEntry("minecraft..gamemode", "lock"),
-                new PermissionEntry("minecraft.gamemode", "deny"), new PermissionEntry(null, "lock"))) {
-            if (entry.pattern().isEmpty() || entry.parsedMode().isEmpty()) continue;
-            candidates.add(new Candidate(entry.pattern().get(), entry.parsedMode().get(), true, "s"));
+        for (PermissionEntry entry : List.of(new PermissionEntry("minecraft..gamemode", null),
+                new PermissionEntry(null, null))) {
+            entry.pattern().ifPresent(pattern -> candidates.add(new Candidate(pattern, false, "s")));
         }
         assertEquals(Verdict.DEFAULT, Resolver.decide(CREATIVE, candidates, RULES).verdict());
     }

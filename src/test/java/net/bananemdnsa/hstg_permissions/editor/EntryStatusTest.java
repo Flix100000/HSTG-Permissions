@@ -17,28 +17,28 @@ class EntryStatusTest {
 
     @Test
     void withoutACatalogNothingIsCalledMissing() {
-        assertNull(EntryStatus.of(new PermissionEntry("minecraft.gamemode.creatve", "lock"), null).problem());
-        assertNull(EntryStatus.of(new PermissionEntry("minecraft.op", "grant"), null).problem());
+        assertNull(EntryStatus.of(new PermissionEntry("minecraft.gamemode.creatve", null), null).problem());
+        assertNull(EntryStatus.of(new PermissionEntry("minecraft.op", null), null).problem());
     }
 
     @Test
     void brokenEntriesShowEvenWithoutACatalog() {
-        assertEquals(EntryProblems.Kind.BAD_MODE,
-                EntryStatus.of(new PermissionEntry("minecraft.gamemode", "deny"), null).problem().kind());
+        assertEquals(EntryProblems.Kind.BAD_PATH,
+                EntryStatus.of(new PermissionEntry("minecraft..gamemode", null), null).problem().kind());
     }
 
     @Test
-    void anErrorWinsOverAWarning() {
-        EntryStatus status = EntryStatus.of(new PermissionEntry("minecraft.op", "grant"), catalog);
-        assertEquals(EntryProblems.Kind.PROTECTED_GRANT, status.problem().kind());
-        assertEquals(EntryProblems.Level.ERROR, status.level());
+    void aProtectedCommandIsAWarning() {
+        EntryStatus status = EntryStatus.of(new PermissionEntry("minecraft.op", null), catalog);
+        assertEquals(EntryProblems.Kind.PROTECTED, status.problem().kind());
+        assertEquals(EntryProblems.Level.WARN, status.level());
     }
 
     @Test
     void aMissingPathIsAWarning() {
-        EntryStatus status = EntryStatus.of(new PermissionEntry("waystones.waystone", "lock"), catalog);
+        EntryStatus status = EntryStatus.of(new PermissionEntry("waystones.waystone", null), catalog);
         assertEquals(EntryProblems.Kind.NOT_FOUND, status.problem().kind());
         assertEquals(EntryProblems.Level.WARN, status.level());
-        assertNull(EntryStatus.of(new PermissionEntry("minecraft.gamemode.creative", "lock"), catalog).level());
+        assertNull(EntryStatus.of(new PermissionEntry("minecraft.gamemode.creative", null), catalog).level());
     }
 }

@@ -14,7 +14,7 @@ public final class EntryProblems {
     public enum Level { ERROR, WARN }
 
     /** What is wrong, for a caller that words it itself – the editor shows its own translated text. */
-    public enum Kind { BAD_PATH, BAD_MODE, PROTECTED_GRANT, NEVER_LOCKABLE, NOT_FOUND }
+    public enum Kind { BAD_PATH, PROTECTED, NEVER_LOCKABLE, NOT_FOUND }
 
     public record Problem(Level level, Kind kind, String message) {}
 
@@ -30,14 +30,9 @@ public final class EntryProblems {
         List<Problem> problems = new ArrayList<>();
         String command = String.valueOf(entry.command());
         Optional<EntryPattern> pattern = entry.pattern();
-        Optional<Mode> mode = entry.parsedMode();
         if (pattern.isEmpty()) {
             problems.add(new Problem(Level.ERROR, Kind.BAD_PATH, "'" + command
                     + "' is not a command path. Write it like minecraft.gamemode.creative, mod.* or *."));
-        }
-        if (mode.isEmpty()) {
-            problems.add(new Problem(Level.ERROR, Kind.BAD_MODE, "'" + command + "' has mode '" + entry.mode()
-                    + "'. Use lock or grant."));
         }
         if (!problems.isEmpty()) return problems;
 
@@ -50,13 +45,13 @@ public final class EntryProblems {
         }
         CommandTarget named = new CommandTarget(read.mod(),
                 List.of(read.kind() == EntryPattern.Kind.PATH ? read.segments() : List.of("*")));
-        if (mode.get() == Mode.GRANT && read.kind() == EntryPattern.Kind.PATH && rules.isProtected(named)) {
-            problems.add(new Problem(Level.ERROR, Kind.PROTECTED_GRANT, "'" + command
-                    + "' is on the protected list and can only be locked. The grant is ignored."));
+        if (read.kind() == EntryPattern.Kind.PATH && rules.isProtected(named)) {
+            problems.add(new Problem(Level.WARN, Kind.PROTECTED, "'" + command
+                    + "' is on the protected list. A stage can take it away, but whoever has the stage still needs to be an operator."));
         }
-        if (mode.get() == Mode.LOCK && read.kind() != EntryPattern.Kind.ALL && rules.isNeverLockable(new CommandTarget(lockMod, named.spellings()))) {
+        if (read.kind() != EntryPattern.Kind.ALL && rules.isNeverLockable(new CommandTarget(lockMod, named.spellings()))) {
             problems.add(new Problem(Level.WARN, Kind.NEVER_LOCKABLE, "'" + command
-                    + "' belongs to History Stages or HSTG: Permissions, which can never be locked. The lock is ignored."));
+                    + "' belongs to History Stages or HSTG: Permissions. A stage can give it, but never take it away."));
         }
         if (exists != null && !exists.test(read)) {
             problems.add(new Problem(Level.WARN, Kind.NOT_FOUND, "No command '" + command

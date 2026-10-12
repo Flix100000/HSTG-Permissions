@@ -21,7 +21,7 @@ public final class RefreshTests {
     public static void aGlobalUnlockOpensTheCommandOnItsOwn(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
-        String stage = TestStages.global("refresh_global", "lock minecraft.gamemode");
+        String stage = TestStages.global("refresh_global", "minecraft.gamemode");
         try {
             TestStages.reload(server);
             if (TestPlayers.canUse(player, "gamemode")) {
@@ -46,7 +46,7 @@ public final class RefreshTests {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer granted = TestPlayers.create(helper);
         ServerPlayer other = TestPlayers.create(helper);
-        String stage = TestStages.individual("refresh_individual", "grant minecraft.time");
+        String stage = TestStages.individual("refresh_individual", "minecraft.time");
         try {
             TestStages.reload(server);
             if (TestPlayers.canUse(granted, "time") || TestPlayers.canUse(other, "time")) {
@@ -75,7 +75,7 @@ public final class RefreshTests {
     public static void anUnlockForAnOfflinePlayerIsHarmless(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         UUID offline = UUID.randomUUID();
-        String stage = TestStages.individual("refresh_offline", "grant minecraft.time");
+        String stage = TestStages.individual("refresh_offline", "minecraft.time");
         try {
             TestStages.reload(server);
             StageStates.unlockIndividual(stage, offline, server);

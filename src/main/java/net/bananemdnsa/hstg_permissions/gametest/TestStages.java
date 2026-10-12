@@ -26,13 +26,13 @@ final class TestStages {
 
     private TestStages() {}
 
-    /** @param entries each like {@code "lock minecraft.gamemode"} or {@code "grant minecraft.msg"} */
-    static String global(String name, String... entries) {
-        return write("global", name, entries);
+    /** @param commands the command paths the stage owns, like {@code "minecraft.gamemode"} */
+    static String global(String name, String... commands) {
+        return write("global", name, commands);
     }
 
-    static String individual(String name, String... entries) {
-        return write("individual", name, entries);
+    static String individual(String name, String... commands) {
+        return write("individual", name, commands);
     }
 
     static void reload(MinecraftServer server) {
@@ -58,14 +58,12 @@ final class TestStages {
         reload(server);
     }
 
-    private static String write(String scope, String name, String... entries) {
+    private static String write(String scope, String name, String... commands) {
         String id = PREFIX + name;
         JsonArray list = new JsonArray();
-        for (String entry : entries) {
-            String[] parts = entry.split(" ", 2);
+        for (String command : commands) {
             JsonObject json = new JsonObject();
-            json.addProperty("command", parts[1]);
-            json.addProperty("mode", parts[0]);
+            json.addProperty("command", command);
             list.add(json);
         }
         JsonObject addons = new JsonObject();

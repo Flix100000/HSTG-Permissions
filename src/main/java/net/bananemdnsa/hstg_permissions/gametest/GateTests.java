@@ -27,7 +27,7 @@ public final class GateTests {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
-            TestStages.global("gate_value_lock", "lock minecraft.gamemode.creative");
+            TestStages.global("gate_value_lock", "minecraft.gamemode.creative");
             TestStages.reload(server);
             Inbox inbox = TestPlayers.run(player, "gamemode creative");
             if (player.gameMode.getGameModeForPlayer() == GameType.CREATIVE) {
@@ -54,7 +54,7 @@ public final class GateTests {
     public static void aGrantedValueOpensOnlyThatValueForANonOp(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.create(helper);
-        String stage = TestStages.individual("gate_value_grant", "grant minecraft.gamemode.creative");
+        String stage = TestStages.individual("gate_value_grant", "minecraft.gamemode.creative");
         try {
             TestStages.reload(server);
             StageStates.unlockIndividual(stage, player);
@@ -90,7 +90,7 @@ public final class GateTests {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
-            TestStages.global("gate_locked_word", "lock minecraft.time");
+            TestStages.global("gate_locked_word", "minecraft.time");
             TestStages.reload(server);
             Inbox inbox = TestPlayers.run(player, "time set day");
             if (!inbox.mentions(LOCKED) || inbox.mentions(UNKNOWN)) {
@@ -110,7 +110,7 @@ public final class GateTests {
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
             PermissionsConfig.setMessageMode(MessageMode.VANILLA);
-            TestStages.global("gate_vanilla_mode", "lock minecraft.time", "lock minecraft.gamemode.creative");
+            TestStages.global("gate_vanilla_mode", "minecraft.time", "minecraft.gamemode.creative");
             TestStages.reload(server);
             Inbox word = TestPlayers.run(player, "time set day");
             Inbox value = TestPlayers.run(player, "gamemode creative");
@@ -131,7 +131,7 @@ public final class GateTests {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
-            TestStages.global("gate_execute", "lock minecraft.gamemode.creative");
+            TestStages.global("gate_execute", "minecraft.gamemode.creative");
             TestStages.reload(server);
             TestPlayers.run(player, "execute run gamemode creative");
             if (player.gameMode.getGameModeForPlayer() == GameType.CREATIVE) {
@@ -149,7 +149,7 @@ public final class GateTests {
     public static void theConsoleRunsALockedValue(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         try {
-            TestStages.global("gate_console", "lock minecraft.time.set");
+            TestStages.global("gate_console", "minecraft.time.set");
             TestStages.reload(server);
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack().withSuppressedOutput(), "time set 1000");
             if (helper.getLevel().getDayTime() % 24000 != 1000) {

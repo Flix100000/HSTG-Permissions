@@ -21,7 +21,6 @@ import net.bananemdnsa.hstg_permissions.rules.Candidate;
 import net.bananemdnsa.hstg_permissions.rules.CommandTarget;
 import net.bananemdnsa.hstg_permissions.rules.Decision;
 import net.bananemdnsa.hstg_permissions.rules.EntryPattern;
-import net.bananemdnsa.hstg_permissions.rules.Mode;
 import net.bananemdnsa.hstg_permissions.rules.PermissionEntry;
 import net.bananemdnsa.hstg_permissions.rules.Resolver;
 import net.bananemdnsa.hstg_permissions.tree.CommandTree;
@@ -68,11 +67,9 @@ public final class PermissionService {
         List<Candidate> candidates = new ArrayList<>();
         for (LockHit<PermissionEntry> hit : CategoryLocks.hits(CommandsCategory.get(), target, player)) {
             Optional<EntryPattern> pattern = hit.entry().pattern();
-            Optional<Mode> mode = hit.entry().parsedMode();
-            if (pattern.isEmpty() || mode.isEmpty()) continue;
+            if (pattern.isEmpty()) continue;
             // locks() counts interchangeable stages in; !unlocked() would ignore them.
-            boolean applies = mode.get() == Mode.LOCK ? hit.locks() : hit.unlocked();
-            candidates.add(new Candidate(pattern.get(), mode.get(), applies, hit.stageId()));
+            candidates.add(new Candidate(pattern.get(), !hit.locks(), hit.stageId()));
         }
         return Resolver.decide(target, candidates, PermissionsConfig.protection());
     }
@@ -101,7 +98,6 @@ public final class PermissionService {
             Set<EntryPattern> found = new LinkedHashSet<>();
             for (StageEntry stage : StageStates.loadedStages()) {
                 for (PermissionEntry entry : CommandsCategory.get().read(stage)) {
-                    if (entry.parsedMode().orElse(null) != Mode.GRANT) continue;
                     entry.pattern().filter(p -> p.kind() == EntryPattern.Kind.PATH).ifPresent(found::add);
                 }
             }

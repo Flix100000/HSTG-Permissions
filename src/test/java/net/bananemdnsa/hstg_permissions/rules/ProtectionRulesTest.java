@@ -54,13 +54,13 @@ class ProtectionRulesTest {
     }
 
     @Test
-    void historyCanBeNeitherLockedNorGrantedByDefault() {
+    void historyCanBeNeitherTakenNorGivenByDefault() {
         ProtectionRules rules = ProtectionRules.of(ProtectionRules.DEFAULT_PROTECTED, ProtectionRules.NEVER_LOCKABLE_MODS);
         CommandTarget unlock = CommandTarget.of("historystages", "history", "global", "unlock");
         List<Candidate> candidates = List.of(
-                new Candidate(EntryPattern.parse("*").orElseThrow(), Mode.GRANT, true, "admin"),
-                new Candidate(EntryPattern.parse("historystages.history").orElseThrow(), Mode.GRANT, true, "mod"),
-                new Candidate(EntryPattern.parse("historystages.history").orElseThrow(), Mode.LOCK, true, "guest"));
+                new Candidate(EntryPattern.parse("*").orElseThrow(), true, "admin"),
+                new Candidate(EntryPattern.parse("historystages.history").orElseThrow(), true, "mod"),
+                new Candidate(EntryPattern.parse("historystages.history").orElseThrow(), false, "guest"));
         assertEquals(Decision.Verdict.DEFAULT, Resolver.decide(unlock, candidates, rules).verdict());
     }
 }
