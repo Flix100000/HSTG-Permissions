@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Set;
 
+import net.bananemdnsa.hstg_permissions.rules.EntryPattern;
 import net.bananemdnsa.hstg_permissions.tree.SampleTree;
 import org.junit.jupiter.api.Test;
 
@@ -43,10 +44,24 @@ class PickerTreeTest {
     @Test
     void searchFindsDeepMatchesWithTheirParents() {
         List<PickerRow> rows = tree.rows(Set.of(), "creat");
-        assertEquals(PickerRow.Kind.TYPED, rows.get(0).kind());
-        assertEquals(List.of("minecraft.*", "minecraft.gamemode", "minecraft.gamemode.creative"),
-                entries(rows.subList(1, rows.size())));
-        assertTrue(rows.get(1).expanded());
+        assertEquals(List.of("minecraft.*", "minecraft.gamemode", "minecraft.gamemode.creative"), entries(rows));
+        assertTrue(rows.get(0).expanded());
+    }
+
+    @Test
+    void aBareKnownWordIsOffered() {
+        PickerRow first = tree.rows(Set.of(), "gamemode").get(0);
+        assertEquals(PickerRow.Kind.TYPED, first.kind());
+        assertEquals("minecraft.gamemode", first.entry());
+        assertTrue(first.found());
+    }
+
+    @Test
+    void everyRowNamesAValidEntry() {
+        for (PickerRow row : tree.rows(Set.of("minecraft.*", "minecraft.gamemode", "minecraft.time",
+                "minecraft.time.set", "ftbquests.*"), "")) {
+            assertTrue(EntryPattern.parse(row.entry()).isPresent(), row.entry());
+        }
     }
 
     @Test

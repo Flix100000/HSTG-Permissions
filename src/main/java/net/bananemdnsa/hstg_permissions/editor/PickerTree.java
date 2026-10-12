@@ -65,7 +65,10 @@ public final class PickerTree {
         if (EntryPattern.parse(q).isPresent()) {
             String resolved = TypedPath.resolve(q, catalog);
             boolean found = EntryPattern.parse(resolved).map(catalog::exists).orElse(false);
-            out.add(new PickerRow(PickerRow.Kind.TYPED, resolved, resolved, 0, false, false, null, 0, found));
+            // A bare unknown word is just a search, not an entry worth adding.
+            if (found || q.contains(".") || q.contains("*")) {
+                out.add(new PickerRow(PickerRow.Kind.TYPED, resolved, resolved, 0, false, false, null, 0, found));
+            }
         }
         // A match shows with every row above it, all open, so it is clear where it lives.
         Set<List<String>> shown = new HashSet<>();

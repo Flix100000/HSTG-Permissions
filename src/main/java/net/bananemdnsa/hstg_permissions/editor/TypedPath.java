@@ -19,6 +19,24 @@ public final class TypedPath {
 
     public static String resolve(String raw, CommandCatalog catalog) {
         String text = raw == null ? "" : raw.trim().toLowerCase(Locale.ROOT);
+        // The stage file names a command without a trailing ".*"; only a whole mod keeps it.
+        if (text.length() > 2 && text.endsWith(".*")) {
+            String stripped = text.substring(0, text.length() - 2);
+            if (!stripped.contains(".") && catalog.mods().contains(stripped)) return text;
+            String resolved = resolvePlain(stripped, catalog);
+            return names(resolved, catalog) ? resolved : text;
+        }
+        return resolvePlain(text, catalog);
+    }
+
+    private static boolean names(String entry, CommandCatalog catalog) {
+        return EntryPattern.parse(entry)
+                .filter(p -> p.kind() == EntryPattern.Kind.PATH)
+                .map(p -> catalog.exists(p) && catalog.modOfRoot(p.segments().get(0)).equals(p.mod()))
+                .orElse(false);
+    }
+
+    private static String resolvePlain(String text, CommandCatalog catalog) {
         Optional<EntryPattern> parsed = EntryPattern.parse(text);
         if (parsed.isEmpty()) return text;
         EntryPattern pattern = parsed.get();

@@ -38,6 +38,15 @@ class TypedPathTest {
     }
 
     @Test
+    void aTrailingStarChangesNothing() {
+        assertEquals("minecraft.gamemode", resolve("gamemode.*"));
+        assertEquals("minecraft.gamemode", resolve("minecraft.gamemode.*"));
+        assertEquals("minecraft.gamemode.creative", resolve("gamemode.creative.*"));
+        assertEquals("ftbquests.*", resolve("ftbquests.*"));
+        assertEquals("foo.*", resolve("foo.*"));
+    }
+
+    @Test
     void unknownPathsStayAsTyped() {
         assertEquals("waystones.waystone", resolve("waystones.waystone"));
         // tp exists, but under minecraft; whoever typed a mod name meant that mod's command.
