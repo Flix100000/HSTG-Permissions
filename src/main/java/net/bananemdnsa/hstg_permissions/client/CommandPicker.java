@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 import net.bananemdnsa.historystages.api.editor.widget.AbstractSearchableList;
 import net.bananemdnsa.historystages.api.editor.widget.SearchBar;
@@ -131,6 +132,8 @@ public final class CommandPicker extends AbstractSearchableList<PickerRow> {
 
     @Override
     public void render(GuiGraphics g, Font font, int mouseX, int mouseY) {
+        CommandCatalog catalog = ClientCatalog.get();
+        list.setSpellings(catalog == null ? UnaryOperator.identity() : catalog::canonical);
         if (isVisible() && seenVersion != ClientCatalog.version()) reloadEntriesKeepingScroll();
         super.render(g, font, mouseX, mouseY);
     }

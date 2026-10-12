@@ -3,6 +3,7 @@ package net.bananemdnsa.hstg_permissions.editor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 import net.bananemdnsa.hstg_permissions.rules.EntryPattern;
 import net.bananemdnsa.hstg_permissions.rules.PermissionEntry;
@@ -21,6 +22,13 @@ public final class EntryList {
     public enum Mark { DIRECT, INHERITED }
 
     private final List<String> commands = new ArrayList<>();
+
+    private UnaryOperator<List<String>> canonical = UnaryOperator.identity();
+
+    /** Makes spellings of one command (tp, teleport) compare equal; stored entries are never rewritten. */
+    public void setSpellings(UnaryOperator<List<String>> canonical) {
+        this.canonical = canonical;
+    }
 
     public void load(List<PermissionEntry> entries) {
         commands.clear();
@@ -88,22 +96,25 @@ public final class EntryList {
     }
 
     // A concrete path ignores its mod when checked, so two paths with the same words are one entry.
-    private static boolean sameTarget(EntryPattern a, EntryPattern b) {
+    private boolean sameTarget(EntryPattern a, EntryPattern b) {
         if (a.kind() != b.kind()) return false;
         return switch (a.kind()) {
             case ALL -> true;
             case MOD -> a.mod().equals(b.mod());
-            case PATH -> a.segments().equals(b.segments());
+            case PATH -> canonical.apply(a.segments()).equals(canonical.apply(b.segments()));
         };
     }
 
-    private static boolean covers(EntryPattern above, EntryPattern below) {
+    private boolean covers(EntryPattern above, EntryPattern below) {
         return switch (above.kind()) {
             case ALL -> below.kind() != EntryPattern.Kind.ALL;
             case MOD -> below.kind() == EntryPattern.Kind.PATH && above.mod().equals(below.mod());
-            case PATH -> below.kind() == EntryPattern.Kind.PATH
-                    && below.segments().size() > above.segments().size()
-                    && below.segments().subList(0, above.segments().size()).equals(above.segments());
+            case PATH -> below.kind() == EntryPattern.Kind.PATH && isBelow(canonical.apply(above.segments()),
+                    canonical.apply(below.segments()));
         };
+    }
+
+    private static boolean isBelow(List<String> above, List<String> below) {
+        return below.size() > above.size() && below.subList(0, above.size()).equals(above);
     }
 }

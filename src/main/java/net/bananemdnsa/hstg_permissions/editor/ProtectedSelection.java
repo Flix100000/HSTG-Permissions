@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 import net.bananemdnsa.hstg_permissions.rules.ProtectionRules;
 
@@ -28,18 +29,25 @@ public final class ProtectedSelection {
         return List.copyOf(entries);
     }
 
+    private UnaryOperator<List<String>> canonical = UnaryOperator.identity();
+
+    /** Makes spellings of one command (tp, teleport) compare equal; stored entries are never rewritten. */
+    public void setSpellings(UnaryOperator<List<String>> canonical) {
+        this.canonical = canonical;
+    }
+
     public State state(List<String> path) {
-        String key = String.join(".", path);
-        if (entries.contains(key)) return State.ON;
-        for (int size = 1; size < path.size(); size++) {
-            if (entries.contains(String.join(".", path.subList(0, size)))) return State.COVERED;
+        List<String> wanted = canonical.apply(path);
+        if (indexOf(wanted) >= 0) return State.ON;
+        for (int size = 1; size < wanted.size(); size++) {
+            if (indexOf(wanted.subList(0, size)) >= 0) return State.COVERED;
         }
         return State.OFF;
     }
 
     public void toggle(List<String> path) {
         switch (state(path)) {
-            case ON -> entries.remove(String.join(".", path));
+            case ON -> entries.remove(indexOf(canonical.apply(path)));
             case OFF -> entries.add(String.join(".", path));
             case COVERED -> { }
         }
@@ -55,10 +63,18 @@ public final class ProtectedSelection {
     public void toggleMod(List<List<String>> roots) {
         boolean all = modState(roots) == ModState.ALL;
         for (List<String> root : roots) {
-            String key = String.join(".", root);
-            if (all) entries.remove(key);
-            else if (!entries.contains(key)) entries.add(key);
+            int index = indexOf(canonical.apply(root));
+            if (all) entries.remove(index);
+            else if (index < 0) entries.add(String.join(".", root));
         }
+    }
+
+    // The stored entry whose canonical form is this path, or -1.
+    private int indexOf(List<String> canonicalPath) {
+        for (int i = 0; i < entries.size(); i++) {
+            if (canonical.apply(Arrays.asList(entries.get(i).split("\\."))).equals(canonicalPath)) return i;
+        }
+        return -1;
     }
 
     /** Entries the server does not know right now – a mod may be missing – so they are shown, not lost. */

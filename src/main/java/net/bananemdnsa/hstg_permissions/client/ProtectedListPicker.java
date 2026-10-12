@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 import net.bananemdnsa.historystages.api.editor.widget.AbstractSearchableList;
 import net.bananemdnsa.historystages.api.editor.widget.Checkbox;
@@ -233,6 +234,8 @@ public final class ProtectedListPicker extends AbstractSearchableList<PickerRow>
 
     @Override
     public void render(GuiGraphics g, Font font, int mouseX, int mouseY) {
+        CommandCatalog catalog = ClientCatalog.get();
+        selection.setSpellings(catalog == null ? UnaryOperator.identity() : catalog::canonical);
         if (isVisible() && seenVersion != ClientCatalog.version()) reloadEntriesKeepingScroll();
         super.render(g, font, mouseX, mouseY);
     }

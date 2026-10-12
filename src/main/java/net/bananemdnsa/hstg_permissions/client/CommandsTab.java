@@ -2,6 +2,7 @@ package net.bananemdnsa.hstg_permissions.client;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.function.UnaryOperator;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -11,6 +12,7 @@ import net.bananemdnsa.historystages.api.editor.TabRenderContext;
 import net.bananemdnsa.historystages.api.editor.widget.EditorRowList;
 import net.bananemdnsa.historystages.api.editor.widget.PickerOverlay;
 import net.bananemdnsa.historystages.data.StageEntry;
+import net.bananemdnsa.hstg_permissions.catalog.CommandCatalog;
 import net.bananemdnsa.hstg_permissions.category.CommandsCategory;
 import net.bananemdnsa.hstg_permissions.editor.EntryList;
 import net.bananemdnsa.hstg_permissions.editor.EntryStatus;
@@ -90,6 +92,7 @@ public final class CommandsTab implements CategoryTab {
     @Override
     public boolean renderContent(TabRenderContext ctx) {
         var catalog = ClientCatalog.get();
+        useSpellingsOf(catalog);
         rows.render(ctx, list.size(), (row, i) -> {
             PermissionEntry entry = list.entryAt(i);
             EntryStatus status = EntryStatus.of(entry, catalog);
@@ -109,6 +112,7 @@ public final class CommandsTab implements CategoryTab {
     @Override
     public void rebuildPicker() {
         picker = new CommandPicker(list, command -> {
+            useSpellingsOf(ClientCatalog.get());
             list.pick(command);
             onChanged.run();
         });
@@ -125,6 +129,10 @@ public final class CommandsTab implements CategoryTab {
         if (picker == null) rebuildPicker();
         picker.setFilter("");
         picker.show(centerX, centerY, parentWidth);
+    }
+
+    private void useSpellingsOf(CommandCatalog catalog) {
+        list.setSpellings(catalog == null ? UnaryOperator.identity() : catalog::canonical);
     }
 
     private static String describe(PermissionEntry entry, EntryProblems.Problem problem) {

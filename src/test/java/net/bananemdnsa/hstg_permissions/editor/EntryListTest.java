@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import net.bananemdnsa.hstg_permissions.rules.PermissionEntry;
+import net.bananemdnsa.hstg_permissions.tree.SampleTree;
 import org.junit.jupiter.api.Test;
 
 class EntryListTest {
@@ -63,5 +64,20 @@ class EntryListTest {
         list.removeAt(1);
         assertEquals(List.of(new PermissionEntry("minecraft.a"), new PermissionEntry("minecraft.c")), list.toEntries());
         assertEquals(List.of("minecraft.a", "minecraft.c"), list.commands());
+    }
+
+    @Test
+    void anAliasIsTheSameEntryWithACatalog() {
+        EntryList list = listOf("minecraft.teleport");
+        list.setSpellings(SampleTree.catalog(List.of())::canonical);
+        assertEquals(Optional.of(EntryList.Mark.DIRECT), list.markFor("minecraft.tp"));
+        assertEquals(EntryList.Change.REMOVED, list.pick("minecraft.tp"));
+        assertEquals(0, list.size());
+    }
+
+    @Test
+    void withoutACatalogSpellingsStaySeparate() {
+        EntryList list = listOf("minecraft.teleport");
+        assertEquals(Optional.empty(), list.markFor("minecraft.tp"));
     }
 }

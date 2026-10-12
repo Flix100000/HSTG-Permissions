@@ -59,4 +59,11 @@ class CommandCatalogTest {
         assertEquals(EntryProblems.Kind.NOT_FOUND,
                 catalog.problems(new PermissionEntry("minecraft.gamemode.creatve")).get(0).kind());
     }
+
+    @Test
+    void anAliasResolvesToItsTarget() {
+        assertEquals(List.of("teleport", "steve"), catalog.canonical(List.of("tp", "steve")));
+        assertEquals(List.of("time", "set"), catalog.canonical(List.of("time", "set")));
+        assertEquals(List.of(), catalog.canonical(List.of()));
+    }
 }

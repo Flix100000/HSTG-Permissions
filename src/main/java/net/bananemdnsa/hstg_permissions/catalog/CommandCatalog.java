@@ -80,6 +80,19 @@ public final class CommandCatalog {
         };
     }
 
+    /** The path with its first word resolved to the command an alias points at; the rest stays as written. */
+    public List<String> canonical(List<String> path) {
+        if (path.isEmpty()) return path;
+        String first = path.get(0);
+        for (int steps = aliasTargets.size(); steps > 0 && aliasTargets.containsKey(first); steps--) {
+            first = aliasTargets.get(first);
+        }
+        if (first.equals(path.get(0))) return path;
+        List<String> copy = new ArrayList<>(path);
+        copy.set(0, first);
+        return List.copyOf(copy);
+    }
+
     public String modOfRoot(String rootName) {
         return rootMods.getOrDefault(rootName, "unknown");
     }

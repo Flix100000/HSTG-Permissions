@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 
 import net.bananemdnsa.hstg_permissions.rules.ProtectionRules;
+import net.bananemdnsa.hstg_permissions.tree.SampleTree;
 import org.junit.jupiter.api.Test;
 
 class ProtectedSelectionTest {
@@ -64,5 +65,14 @@ class ProtectedSelectionTest {
         ProtectedSelection selection = new ProtectedSelection(List.of("kick"));
         selection.reset();
         assertEquals(ProtectionRules.DEFAULT_PROTECTED, selection.entries());
+    }
+
+    @Test
+    void anAliasRowFollowsItsTarget() {
+        ProtectedSelection selection = new ProtectedSelection(List.of("teleport"));
+        selection.setSpellings(SampleTree.catalog(List.of())::canonical);
+        assertEquals(ProtectedSelection.State.ON, selection.state(List.of("tp")));
+        selection.toggle(List.of("tp"));
+        assertEquals(List.of(), selection.entries());
     }
 }
