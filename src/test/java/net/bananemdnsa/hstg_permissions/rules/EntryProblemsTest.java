@@ -43,9 +43,8 @@ class EntryProblemsTest {
 
     @Test
     void aHistoryStagesCommandIsAWarning() {
-        assertEquals(Level.WARN, check("historystages.history").get(0).level());
-        assertTrue(check("historystages.history").stream()
-                .anyMatch(problem -> problem.kind() == EntryProblems.Kind.NEVER_LOCKABLE));
+        assertEquals(Level.WARN, check("historystages.gamemode").get(0).level());
+        assertEquals(EntryProblems.Kind.NEVER_LOCKABLE, check("historystages.gamemode").get(0).kind());
         assertEquals(Level.WARN, check("hstg_permissions.*").get(0).level());
         assertEquals(EntryProblems.Kind.NEVER_LOCKABLE, check("hstg_permissions.*").get(0).kind());
     }
@@ -68,10 +67,23 @@ class EntryProblemsTest {
     void theRealModDecidesWhetherItIsNeverLockable() {
         assertTrue(EntryProblems.check(new PermissionEntry("historystages.gamemode"), RULES,
                 pattern -> true, pattern -> "minecraft").isEmpty());
-        List<Problem> problems = EntryProblems.check(new PermissionEntry("minecraft.history"), RULES,
+        List<Problem> problems = EntryProblems.check(new PermissionEntry("minecraft.gamemode"), RULES,
                 pattern -> true, pattern -> "historystages");
-        // history is protected as well, so it is flagged twice.
-        assertTrue(problems.stream().anyMatch(problem -> problem.kind() == EntryProblems.Kind.NEVER_LOCKABLE));
-        assertTrue(problems.stream().allMatch(problem -> problem.level() == Level.WARN));
+        assertEquals(1, problems.size());
+        assertEquals(EntryProblems.Kind.NEVER_LOCKABLE, problems.get(0).kind());
+        assertEquals(Level.WARN, problems.get(0).level());
+    }
+
+    @Test
+    void historyIsAlwaysVanilla() {
+        List<Problem> direct = check("historystages.history");
+        assertEquals(1, direct.size());
+        assertEquals(Level.WARN, direct.get(0).level());
+        assertEquals(EntryProblems.Kind.ALWAYS_VANILLA, direct.get(0).kind());
+
+        List<Problem> viaRealMod = EntryProblems.check(new PermissionEntry("minecraft.history"), RULES,
+                pattern -> true, pattern -> "historystages");
+        assertEquals(1, viaRealMod.size());
+        assertEquals(EntryProblems.Kind.ALWAYS_VANILLA, viaRealMod.get(0).kind());
     }
 }

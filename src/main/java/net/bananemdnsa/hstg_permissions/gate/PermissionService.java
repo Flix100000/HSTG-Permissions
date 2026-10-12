@@ -38,8 +38,8 @@ import org.jetbrains.annotations.Nullable;
 public final class PermissionService {
 
     private static final Map<UUID, Map<String, Decision>> DECISIONS = new ConcurrentHashMap<>();
-    private static final Map<UUID, Map<String, Boolean>> GRANTS_BELOW = new ConcurrentHashMap<>();
-    private static volatile List<EntryPattern> grantPatterns;
+    private static final Map<UUID, Map<String, Boolean>> OPEN_BELOW = new ConcurrentHashMap<>();
+    private static volatile List<EntryPattern> pathPatterns;
     private static volatile CommandTree<CommandSourceStack> tree;
 
     private PermissionService() {}
@@ -47,9 +47,9 @@ public final class PermissionService {
     public static boolean canUse(ServerPlayer player, CommandTarget target, BooleanSupplier vanilla) {
         Decision decision = decide(player, target);
         if (decision.verdict() == Decision.Verdict.GRANT) return true;
-        // A grant further down has to open the way to it, or /gamemode creative could never be
-        // granted without all of /gamemode.
-        if (grantBelow(player, target)) return true;
+        // An entry further down that this player may use has to open the way to it, or
+        // /gamemode creative could never be given without all of /gamemode.
+        if (openBelow(player, target)) return true;
         return decision.verdict() == Decision.Verdict.DEFAULT && vanilla.getAsBoolean();
     }
 
@@ -74,26 +74,26 @@ public final class PermissionService {
         return Resolver.decide(target, candidates, PermissionsConfig.protection());
     }
 
-    private static boolean grantBelow(ServerPlayer player, CommandTarget target) {
-        return GRANTS_BELOW.computeIfAbsent(player.getUUID(), id -> new ConcurrentHashMap<>())
+    private static boolean openBelow(ServerPlayer player, CommandTarget target) {
+        return OPEN_BELOW.computeIfAbsent(player.getUUID(), id -> new ConcurrentHashMap<>())
                 .computeIfAbsent(target.key(), key -> {
-                    for (EntryPattern grant : grantPatterns()) {
-                        if (!grant.isStrictlyBelow(target)) continue;
-                        if (decide(player, deeper(target, grant)).verdict() == Decision.Verdict.GRANT) return true;
+                    for (EntryPattern entry : pathPatterns()) {
+                        if (!entry.isStrictlyBelow(target)) continue;
+                        if (decide(player, deeper(target, entry)).verdict() == Decision.Verdict.GRANT) return true;
                     }
                     return false;
                 });
     }
 
-    private static CommandTarget deeper(CommandTarget above, EntryPattern grant) {
+    private static CommandTarget deeper(CommandTarget above, EntryPattern entry) {
         CommandTree<CommandSourceStack> current = tree();
         return current != null
-                ? current.targetFor(grant.segments())
-                : new CommandTarget(above.mod(), List.of(grant.segments()));
+                ? current.targetFor(entry.segments())
+                : new CommandTarget(above.mod(), List.of(entry.segments()));
     }
 
-    private static List<EntryPattern> grantPatterns() {
-        List<EntryPattern> patterns = grantPatterns;
+    private static List<EntryPattern> pathPatterns() {
+        List<EntryPattern> patterns = pathPatterns;
         if (patterns == null) {
             Set<EntryPattern> found = new LinkedHashSet<>();
             for (StageEntry stage : StageStates.loadedStages()) {
@@ -102,7 +102,7 @@ public final class PermissionService {
                 }
             }
             patterns = List.copyOf(found);
-            grantPatterns = patterns;
+            pathPatterns = patterns;
         }
         return patterns;
     }
@@ -110,14 +110,14 @@ public final class PermissionService {
     /** After anything that can change any player's answer. */
     public static void invalidate() {
         DECISIONS.clear();
-        GRANTS_BELOW.clear();
-        grantPatterns = null;
+        OPEN_BELOW.clear();
+        pathPatterns = null;
     }
 
     /** After something that can only change this player's answer. */
     public static void forget(UUID player) {
         DECISIONS.remove(player);
-        GRANTS_BELOW.remove(player);
+        OPEN_BELOW.remove(player);
     }
 
     /**

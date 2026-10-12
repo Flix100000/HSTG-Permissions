@@ -27,7 +27,7 @@ public final class PermissionsConfig {
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         PROTECTED_COMMANDS = builder
-                .comment("Commands that can only be locked, never granted, not even through '*'.",
+                .comment("Commands a stage can take away but never hand out, not even through '*'.",
                         "Written without a mod name, e.g. 'op' or 'whitelist.add'.")
                 .defineListAllowEmpty("protected_commands", ProtectionRules.DEFAULT_PROTECTED,
                         () -> "", value -> value instanceof String);

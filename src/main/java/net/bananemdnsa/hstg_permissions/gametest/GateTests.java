@@ -23,7 +23,7 @@ public final class GateTests {
     private GateTests() {}
 
     @GameTest(template = "empty", batch = "hstgp_gate_value_lock")
-    public static void aLockedValueStopsOnlyThatValue(GameTestHelper helper) {
+    public static void aTakenValueStopsOnlyThatValue(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
@@ -31,7 +31,7 @@ public final class GateTests {
             TestStages.reload(server);
             Inbox inbox = TestPlayers.run(player, "gamemode creative");
             if (player.gameMode.getGameModeForPlayer() == GameType.CREATIVE) {
-                helper.fail("/gamemode creative must be stopped by a lock on that value");
+                helper.fail("/gamemode creative must be stopped by a stage that does not have it");
                 return;
             }
             if (!inbox.mentions(LOCKED)) {
@@ -51,7 +51,7 @@ public final class GateTests {
     }
 
     @GameTest(template = "empty", batch = "hstgp_gate_value_grant")
-    public static void aGrantedValueOpensOnlyThatValueForANonOp(GameTestHelper helper) {
+    public static void aGivenValueOpensOnlyThatValueForANonOp(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.create(helper);
         String stage = TestStages.individual("gate_value_grant", "minecraft.gamemode.creative");
@@ -60,21 +60,21 @@ public final class GateTests {
             StageStates.unlockIndividual(stage, player);
             PermissionService.forget(player.getUUID());
             if (!TestPlayers.canUse(player, "gamemode")) {
-                helper.fail("a grant on a value must open /gamemode in the tree");
+                helper.fail("an entry on a value must open /gamemode in the tree");
                 return;
             }
             TestPlayers.run(player, "gamemode creative");
             if (player.gameMode.getGameModeForPlayer() != GameType.CREATIVE) {
-                helper.fail("the granted value must work without OP");
+                helper.fail("the given value must work without OP");
                 return;
             }
             Inbox inbox = TestPlayers.run(player, "gamemode adventure");
             if (player.gameMode.getGameModeForPlayer() != GameType.CREATIVE) {
-                helper.fail("a value nobody granted must stay closed to a non-OP");
+                helper.fail("a value no stage names must stay closed to a non-OP");
                 return;
             }
             if (!inbox.mentions(UNKNOWN)) {
-                helper.fail("a value outside the grant must answer like vanilla, got " + inbox);
+                helper.fail("a value outside the entry must answer like vanilla, got " + inbox);
                 return;
             }
             helper.succeed();
@@ -86,7 +86,7 @@ public final class GateTests {
     }
 
     @GameTest(template = "empty", batch = "hstgp_gate_locked_word")
-    public static void aLockedWordIsNamedAsLocked(GameTestHelper helper) {
+    public static void aTakenWordIsNamedAsLocked(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
@@ -127,7 +127,7 @@ public final class GateTests {
     }
 
     @GameTest(template = "empty", batch = "hstgp_gate_execute")
-    public static void executeRunCannotSlipPastAValueLock(GameTestHelper helper) {
+    public static void executeRunCannotSlipPastATakenValue(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
@@ -135,7 +135,7 @@ public final class GateTests {
             TestStages.reload(server);
             TestPlayers.run(player, "execute run gamemode creative");
             if (player.gameMode.getGameModeForPlayer() == GameType.CREATIVE) {
-                helper.fail("execute ... run must not get around a value lock");
+                helper.fail("execute ... run must not get around a taken value");
                 return;
             }
             helper.succeed();
@@ -146,14 +146,14 @@ public final class GateTests {
     }
 
     @GameTest(template = "empty", batch = "hstgp_gate_console")
-    public static void theConsoleRunsALockedValue(GameTestHelper helper) {
+    public static void theConsoleRunsATakenValue(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         try {
             TestStages.global("gate_console", "minecraft.time.set");
             TestStages.reload(server);
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack().withSuppressedOutput(), "time set 1000");
             if (helper.getLevel().getDayTime() % 24000 != 1000) {
-                helper.fail("the console must run a locked command");
+                helper.fail("the console must run a taken command");
                 return;
             }
             helper.succeed();

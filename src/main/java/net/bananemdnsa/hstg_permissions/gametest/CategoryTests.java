@@ -32,7 +32,7 @@ public final class CategoryTests {
             List<LockHit<PermissionEntry>> hits = CategoryLocks.hits(CommandsCategory.get(),
                     CommandTarget.of("minecraft", "gamemode", "creative"), player);
             if (hits.size() != 1 || !hits.get(0).locks() || !"minecraft.gamemode".equals(hits.get(0).entry().command())) {
-                helper.fail("a lock entry in a stage file must come back as one locking hit, got " + hits);
+                helper.fail("an entry in a stage file must come back as one locking hit, got " + hits);
                 return;
             }
             // The control: a category matching everything would pass the check above.

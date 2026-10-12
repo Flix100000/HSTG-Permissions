@@ -16,7 +16,7 @@ displayName="${mod_name}" #mandatory
 authors="Bananemdnsa"
 
 description='''
-A History Stages addon that locks and grants commands per stage, down to single subcommands like /gamemode creative.
+A History Stages addon that ties commands to stages: whoever has the stage may use them, nobody else may, down to single subcommands like /gamemode creative.
 '''
 
 [[mixins]]

@@ -18,9 +18,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 /**
- * The window behind "+": the server's commands as a tree. The two tabs pick what a confirmed
- * selection becomes; picking something that is already there takes it out or switches it, the way
- * {@link EntryList#pick} says.
+ * The window behind "+": the server's commands as a tree. Picking something that is already
+ * there takes it out again, the way {@link EntryList#pick} says.
  */
 public final class CommandPicker extends AbstractSearchableList<PickerRow> {
 

@@ -19,7 +19,7 @@ import net.bananemdnsa.hstg_permissions.rules.EntryProblems;
 import net.bananemdnsa.hstg_permissions.rules.PermissionEntry;
 import net.minecraft.network.chat.Component;
 
-/** The Commands tab: one row per entry, its path as the stage file writes it and a lock/grant switch. */
+/** The Commands tab: one row per entry, its path written the way the stage file writes it. */
 public final class CommandsTab implements CategoryTab {
 
     private static final int COUNT_LINE_H = 14;

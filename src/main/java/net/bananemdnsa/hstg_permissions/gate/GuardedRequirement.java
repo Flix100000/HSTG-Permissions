@@ -9,8 +9,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.common.util.FakePlayer;
 
 /**
- * Wraps one literal's requirement. Locked: no. Granted: yes. Otherwise Minecraft's own check,
- * along the whole path, because a grant further down may have opened a node above this one.
+ * Wraps one literal's requirement. A stage's answer wins – no or yes – otherwise Minecraft's own
+ * check along the whole path, because an entry further down may have opened a node above this one.
  */
 final class GuardedRequirement implements Predicate<CommandSourceStack> {
 

@@ -14,7 +14,7 @@ public final class EntryProblems {
     public enum Level { ERROR, WARN }
 
     /** What is wrong, for a caller that words it itself – the editor shows its own translated text. */
-    public enum Kind { BAD_PATH, PROTECTED, NEVER_LOCKABLE, NOT_FOUND }
+    public enum Kind { BAD_PATH, PROTECTED, NEVER_LOCKABLE, ALWAYS_VANILLA, NOT_FOUND }
 
     public record Problem(Level level, Kind kind, String message) {}
 
@@ -45,11 +45,17 @@ public final class EntryProblems {
         }
         CommandTarget named = new CommandTarget(read.mod(),
                 List.of(read.kind() == EntryPattern.Kind.PATH ? read.segments() : List.of("*")));
-        if (read.kind() == EntryPattern.Kind.PATH && rules.isProtected(named)) {
+        boolean isProtected = read.kind() == EntryPattern.Kind.PATH && rules.isProtected(named);
+        boolean neverLockable = read.kind() != EntryPattern.Kind.ALL
+                && rules.isNeverLockable(new CommandTarget(lockMod, named.spellings()));
+        if (isProtected && neverLockable) {
+            // Either warning alone would be false: the resolver always answers DEFAULT here.
+            problems.add(new Problem(Level.WARN, Kind.ALWAYS_VANILLA, "'" + command
+                    + "' can neither be given nor taken by a stage. It always keeps Minecraft's own operator check."));
+        } else if (isProtected) {
             problems.add(new Problem(Level.WARN, Kind.PROTECTED, "'" + command
                     + "' is on the protected list. A stage can take it away, but whoever has the stage still needs to be an operator."));
-        }
-        if (read.kind() != EntryPattern.Kind.ALL && rules.isNeverLockable(new CommandTarget(lockMod, named.spellings()))) {
+        } else if (neverLockable) {
             problems.add(new Problem(Level.WARN, Kind.NEVER_LOCKABLE, "'" + command
                     + "' belongs to History Stages or HSTG: Permissions. A stage can give it, but never take it away."));
         }

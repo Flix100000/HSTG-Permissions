@@ -5,6 +5,7 @@
   "editor.hstg_permissions.problem.bad_path": "%1$s is not a command path. Write it like minecraft.gamemode.creative, mod.* or *.",
   "editor.hstg_permissions.problem.protected": "%1$s is on the protected list. This stage can take it away, but whoever has the stage still needs to be an operator. The list is in the server config.",
   "editor.hstg_permissions.problem.never_lockable": "%1$s belongs to History Stages or HSTG: Permissions. A stage can give it, but never take it away.",
+  "editor.hstg_permissions.problem.always_vanilla": "%1$s can neither be given nor taken by a stage. It always keeps Minecraft's own operator check.",
   "editor.hstg_permissions.problem.not_found": "%1$s does not exist on this server. A typo, or the mod is missing. The entry stays and works once the command exists.",
   "editor.hstg_permissions.picker.search": "Search commands... (@mod)",
   "editor.hstg_permissions.picker.all": "All commands",
