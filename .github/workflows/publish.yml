@@ -1,0 +1,86 @@
+name: Publish Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    # Off until the CurseForge and Modrinth projects and their secrets exist. To switch it on, set the
+    # repository variable PUBLISH_ENABLED to true (Settings > Secrets and variables > Actions > Variables).
+    if: vars.PUBLISH_ENABLED == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          # Lootr comes from
+          # cursemaven.com, which rate-limits the shared runner IPs — an uncached run asks for
+          # all of them and regularly gets HTTP 429 back. A cache hit never asks at all.
+          cache: 'gradle'
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: |
+          # One retry: publishing is a one-shot event, so a transient dependency-resolution
+          # failure would otherwise mean re-running the release by hand.
+          ./gradlew build || { echo "Build failed, retrying once after 60s"; sleep 60; ./gradlew build; }
+
+      - name: Publish to CurseForge & Modrinth
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          # CurseForge
+          curseforge-id: ${{ secrets.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          # Modrinth
+          modrinth-id: ${{ secrets.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          # Mod-Details
+          name: "HSTG: Permissions ${{ github.event.release.tag_name }}"
+          version: ${{ github.event.release.tag_name }}
+          changelog: ${{ github.event.release.body }}
+          game-versions: |
+            1.21
+            1.21.1
+          loaders: neoforge
+          # Taken from the release rather than fixed here: a release marked as a prerelease on
+          # GitHub was still landing on the Release channel on both platforms, so a beta reached
+          # everyone who tracks the mod as if it were finished.
+          version-type: ${{ github.event.release.prerelease && 'beta' || 'release' }}
+          dependencies: |
+            history-stages(required)
+          java: 21
+          files: build/libs/!(*-sources).jar
+
+      - name: Upload jar to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/libs/!(*-sources).jar
+
+  # Announce on Discord only after the build + publish succeeded
+  notify:
+    needs: publish
+    # Off until the webhook is set up, same switch idea: repository variable DISCORD_ENABLED = true.
+    if: vars.DISCORD_ENABLED == 'true'
+    uses: ./.github/workflows/discord-notify.yml
+    with:
+      release_name: ${{ github.event.release.name || github.event.release.tag_name }}
+      release_body: ${{ github.event.release.body }}
+      release_url: ${{ github.event.release.html_url }}
+      published_at: ${{ github.event.release.published_at }}
+      ref: ${{ github.event.release.target_commitish }}
+    secrets:
+      webhook: ${{ secrets.DISCORD_WEBHOOK }}
