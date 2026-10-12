@@ -47,7 +47,7 @@ public final class ProtectedListScreen extends AbstractModalScreen {
 
     /**
      * One drawn row. {@code path} is the stored form without a mod; a loose row is an entry the
-     * tree cannot place – unknown to the server, or no tree at all.
+     * tree has no row for – unknown to the server, spelled through an alias, or no tree at all.
      */
     private record Line(Kind kind, String key, String label, int depth, boolean hasChildren, boolean open,
                         @Nullable List<String> path, @Nullable String mod) {}
@@ -68,6 +68,7 @@ public final class ProtectedListScreen extends AbstractModalScreen {
     private PickerTree tree;
     private CommandCatalog treeOf;
     private Map<String, List<List<String>>> rootsByMod = Map.of();
+    private Set<List<String>> nodePaths = Set.of();
     private int visibleRows = VISIBLE_ROWS;
     private int scroll;
 
@@ -184,13 +185,14 @@ public final class ProtectedListScreen extends AbstractModalScreen {
                     : "editor.hstg_permissions.picker.loading";
             out.add(new Line(Kind.INFO, "info", Component.translatable(info).getString(), 0, false, false, null, null));
             loose.addAll(selection.entries());
-            addLoose(out, query, entry -> true);
+            addLoose(out, query, entry -> true, entry -> true);
             return out;
         }
 
         PickerTree current = currentTree(catalog);
+        // Context rows stay: here each one is a real command or mod, and without them a search for
+        // "add" would show bare "add" rows with nothing to tell them apart.
         for (PickerRow row : current.rows(expanded, searchBar.getText())) {
-            if (row.context()) continue;
             switch (row.kind()) {
                 case MOD -> out.add(new Line(Kind.MOD, row.entry(), row.label(), 0, row.hasChildren(),
                         row.expanded(), null, row.label()));
@@ -202,20 +204,26 @@ public final class ProtectedListScreen extends AbstractModalScreen {
                 default -> { }
             }
         }
+        // Every entry the tree has no row for still gets one, so it can be seen and unticked. Only
+        // what the server does not know at all is marked as missing.
         Predicate<List<String>> exists = path -> catalog.exists(new EntryPattern(EntryPattern.Kind.PATH, null, path));
-        loose.addAll(selection.missing(exists));
-        addLoose(out, query, entry -> !exists.test(List.of(entry.split("\\."))));
+        loose.addAll(selection.missing(nodePaths::contains));
+        addLoose(out, query, entry -> !nodePaths.contains(pathOf(entry)), entry -> exists.test(pathOf(entry)));
         return out;
     }
 
-    private void addLoose(List<Line> out, String query, Predicate<String> show) {
-        // A mod filter cannot place an entry the server does not know, so it hides them.
+    private void addLoose(List<Line> out, String query, Predicate<String> show, Predicate<String> known) {
+        // A mod filter cannot place an entry the tree has no row for, so it hides them.
         if (query.startsWith("@")) return;
         for (String entry : loose) {
             if (!show.test(entry) || !entry.contains(query)) continue;
-            out.add(new Line(Kind.LOOSE, "loose:" + entry, "§e⚠ " + entry, 0, false, false,
-                    List.of(entry.split("\\.")), null));
+            String label = known.test(entry) ? entry : "§e⚠ " + entry;
+            out.add(new Line(Kind.LOOSE, "loose:" + entry, label, 0, false, false, pathOf(entry), null));
         }
+    }
+
+    private static List<String> pathOf(String entry) {
+        return List.of(entry.split("\\."));
     }
 
     private static String label(PickerRow row) {
@@ -233,6 +241,9 @@ public final class ProtectedListScreen extends AbstractModalScreen {
                 roots.computeIfAbsent(catalog.modOfRoot(node.path().get(0)), mod -> new ArrayList<>()).add(node.path());
             }
             rootsByMod = roots;
+            Set<List<String>> paths = new HashSet<>();
+            for (CommandCatalog.Node node : catalog.nodes()) paths.add(node.path());
+            nodePaths = paths;
         }
         return tree;
     }
@@ -368,6 +379,11 @@ public final class ProtectedListScreen extends AbstractModalScreen {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // ESC on a focused bar only drops the focus; the second ESC closes the window.
         if (searchBar.keyPressed(keyCode)) return true;
+        // ENTER after typing a search ends the search, not the window.
+        if ((keyCode == 257 || keyCode == 335) && searchBar.isFocused() && !searchBar.getText().isEmpty()) {
+            searchBar.setFocused(false);
+            return true;
+        }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 

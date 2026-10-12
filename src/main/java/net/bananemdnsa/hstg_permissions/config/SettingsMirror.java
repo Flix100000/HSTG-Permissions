@@ -5,9 +5,9 @@ import java.util.List;
 import net.bananemdnsa.hstg_permissions.rules.ProtectionRules;
 
 /**
- * The settings as plain values, so a client (which has no server config) and a test without a
- * loaded spec still read what was last written. Kept apart from {@link PermissionsConfig} because
- * that class cannot load without NeoForge.
+ * The settings as plain values, for when no spec is loaded at all, so what was last written is still
+ * read back. A remote client is not such a case: NeoForge syncs the server config to it. Kept apart
+ * from {@link PermissionsConfig} because that class cannot load without NeoForge.
  */
 final class SettingsMirror {
 

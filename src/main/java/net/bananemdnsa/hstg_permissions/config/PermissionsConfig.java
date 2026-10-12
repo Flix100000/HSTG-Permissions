@@ -21,7 +21,8 @@ public final class PermissionsConfig {
     private static final ModConfigSpec.EnumValue<MessageMode> LOCKED_MESSAGE;
     private static final ModConfigSpec.ConfigValue<String> LOCKED_MESSAGE_TEXT;
 
-    // HSTG syncs values back to every client, which has no server config of its own to write into.
+    // Fallback for when no spec is loaded at all (no world open, or a test before loading). A remote
+    // client does get the server config: NeoForge syncs it as a copy without a file.
     private static final SettingsMirror MIRROR = new SettingsMirror();
 
     private static volatile ProtectionRules protection =
@@ -54,6 +55,7 @@ public final class PermissionsConfig {
         reapply();
     }
 
+    // Also reached through save(): it fires Reloading even for a synced copy without a file.
     private static void reapply() {
         Set<String> modIds = knownModIds();
         List<String> commands = protectedCommands();
@@ -95,25 +97,31 @@ public final class PermissionsConfig {
 
     public static void setProtectedCommands(List<String> commands) {
         MIRROR.protectedCommands(commands);
-        if (!SPEC.isLoaded()) return;
+        if (!SPEC.isLoaded()) {
+            reapply();
+            return;
+        }
         PROTECTED_COMMANDS.set(MIRROR.protectedCommands());
         PROTECTED_COMMANDS.save();
-        reapply();
     }
 
     public static void setMessageMode(MessageMode mode) {
         MIRROR.messageMode(mode.name());
-        if (!SPEC.isLoaded()) return;
+        if (!SPEC.isLoaded()) {
+            reapply();
+            return;
+        }
         LOCKED_MESSAGE.set(mode);
         LOCKED_MESSAGE.save();
-        reapply();
     }
 
     public static void setLockedMessageText(String text) {
         MIRROR.lockedMessageText(text);
-        if (!SPEC.isLoaded()) return;
+        if (!SPEC.isLoaded()) {
+            reapply();
+            return;
+        }
         LOCKED_MESSAGE_TEXT.set(text);
         LOCKED_MESSAGE_TEXT.save();
-        reapply();
     }
 }
