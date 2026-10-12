@@ -22,8 +22,8 @@ A History Stages addon that locks and grants commands per stage, down to single 
 [[mixins]]
 config="${mod_id}.mixins.json"
 
-#[[accessTransformers]]
-#file="META-INF/accesstransformer.cfg"
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"
 
 [[dependencies.${mod_id}]] #optional
     modId="neoforge" #mandatory

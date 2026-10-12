@@ -13,5 +13,6 @@ public final class PermissionsNetwork {
         PayloadRegistrar registrar = event.registrar("1").optional();
         registrar.playToServer(CatalogRequestPayload.TYPE, CatalogRequestPayload.STREAM_CODEC, CatalogRequestPayload::handle);
         registrar.playToClient(CatalogPayload.TYPE, CatalogPayload.STREAM_CODEC, CatalogPayload::handle);
+        registrar.playToClient(GameModesPayload.TYPE, GameModesPayload.STREAM_CODEC, GameModesPayload::handle);
     }
 }

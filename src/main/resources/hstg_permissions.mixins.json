@@ -2,7 +2,12 @@
   "required": true,
   "package": "net.bananemdnsa.hstg_permissions.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": ["CommandsMixin"],
+  "client": [
+    "client.KeyboardHandlerMixin",
+    "client.GameModeSwitcherScreenMixin",
+    "client.GameModeSlotMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   },

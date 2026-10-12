@@ -15,5 +15,6 @@ public final class ClientEvents {
     @SubscribeEvent
     public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         ClientCatalog.reset();
+        ClientGameModes.reset();
     }
 }
