@@ -3,9 +3,11 @@ package net.bananemdnsa.hstg_permissions.client;
 import net.bananemdnsa.historystages.api.editor.CategoryEditor;
 import net.bananemdnsa.historystages.api.editor.CategoryTab;
 import net.bananemdnsa.historystages.api.editor.RegisterCategoryEditorsEvent;
+import net.bananemdnsa.historystages.api.editor.RegisterCustomFieldScreensEvent;
 import net.bananemdnsa.historystages.api.stage.StageScope;
 import net.bananemdnsa.hstg_permissions.HSTGPermissions;
 import net.bananemdnsa.hstg_permissions.category.CommandsCategory;
+import net.bananemdnsa.hstg_permissions.config.PermissionsSettings;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -30,5 +32,10 @@ public final class CommandsEditor {
                 return new CommandsTab(onChanged);
             }
         });
+    }
+
+    @SubscribeEvent
+    public static void onRegisterFieldScreens(RegisterCustomFieldScreensEvent event) {
+        event.register(PermissionsSettings.PROTECTED, ProtectedListScreen::new);
     }
 }

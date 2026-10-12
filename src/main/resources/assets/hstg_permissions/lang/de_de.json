@@ -22,5 +22,9 @@
   "config.hstg_permissions.settings.lockedMessageText.desc": "Leer lassen für den übersetzten Standardtext. & leitet einen Farbcode ein. Die benötigte Stage wird angehängt, wenn die Stage Hinweise erlaubt.",
   "config.hstg_permissions.settings.protectedCommands": "Schutzliste",
   "config.hstg_permissions.settings.protectedCommands.desc": "Commands, die eine Stage nur wegnehmen, nie geben kann.",
+  "config.hstg_permissions.protected.title": "Schutzliste",
+  "config.hstg_permissions.protected.subtitle": "Angehakte Commands kann eine Stage nur wegnehmen, nie geben.",
+  "config.hstg_permissions.protected.count": "%1$s geschützt",
+  "config.hstg_permissions.protected.default": "Standard",
   "message.hstg_permissions.command_locked": "Dieser Befehl ist noch gesperrt"
 }

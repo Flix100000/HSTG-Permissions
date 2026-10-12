@@ -22,5 +22,9 @@
   "config.hstg_permissions.settings.lockedMessageText.desc": "Leave empty for the translated default. & starts a colour code. The required stage is added after it where the stage allows hints.",
   "config.hstg_permissions.settings.protectedCommands": "Protected commands",
   "config.hstg_permissions.settings.protectedCommands.desc": "Commands a stage can take away but never hand out.",
+  "config.hstg_permissions.protected.title": "Protected commands",
+  "config.hstg_permissions.protected.subtitle": "Ticked commands can be taken away by a stage, never handed out.",
+  "config.hstg_permissions.protected.count": "%1$s protected",
+  "config.hstg_permissions.protected.default": "Default",
   "message.hstg_permissions.command_locked": "This command is still locked"
 }
