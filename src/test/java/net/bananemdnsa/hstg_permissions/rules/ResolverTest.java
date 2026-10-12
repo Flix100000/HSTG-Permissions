@@ -1,6 +1,7 @@
 package net.bananemdnsa.hstg_permissions.rules;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,5 +126,26 @@ class ResolverTest {
             entry.pattern().ifPresent(pattern -> candidates.add(new Candidate(pattern, false, "s")));
         }
         assertEquals(Verdict.DEFAULT, Resolver.decide(CREATIVE, candidates, RULES).verdict());
+    }
+
+    @Test
+    void aGrantNamesTheStageAndEntryThatGaveIt() {
+        Decision decision = Resolver.decide(CREATIVE,
+                List.of(missing("minecraft.gamemode"), held("minecraft.gamemode.creative")), RULES);
+        assertEquals(Verdict.GRANT, decision.verdict());
+        assertEquals("has_minecraft.gamemode.creative", decision.grantedBy().orElseThrow().stageId());
+        assertEquals("minecraft.gamemode.creative", decision.grantedBy().orElseThrow().pattern().text());
+    }
+
+    @Test
+    void theEverythingStageNamesItselfAsTheGiver() {
+        Decision decision = Resolver.decide(CREATIVE, List.of(held("*")), RULES);
+        assertEquals("has_*", decision.grantedBy().orElseThrow().stageId());
+    }
+
+    @Test
+    void onlyAGrantNamesAGiver() {
+        assertTrue(Resolver.decide(CREATIVE, List.of(missing("minecraft.gamemode")), RULES).grantedBy().isEmpty());
+        assertTrue(Resolver.decide(CREATIVE, List.of(), RULES).grantedBy().isEmpty());
     }
 }

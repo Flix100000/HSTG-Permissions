@@ -39,6 +39,7 @@ public final class CommandEventGate {
         CommandTree<CommandSourceStack> tree = PermissionService.tree();
         if (player == null || player instanceof FakePlayer || tree == null) return;
         String input = parse.getReader().getString();
+        VerboseWatch.onCommand(player, input);
 
         if (parse.getReader().canRead() || !parse.getExceptions().isEmpty()) {
             // The parse stopped short, most likely at a word a lock hides. Vanilla's own message

@@ -96,4 +96,11 @@ class EntryPatternTest {
         assertFalse(parse("minecraft.*").isStrictlyBelow(gamemode));
         assertFalse(parse("*").isStrictlyBelow(gamemode));
     }
+
+    @Test
+    void textWritesThePatternBack() {
+        assertEquals("*", EntryPattern.parse("*").orElseThrow().text());
+        assertEquals("ftb.*", EntryPattern.parse("FTB").orElseThrow().text());
+        assertEquals("minecraft.gamemode.creative", EntryPattern.parse("minecraft.gamemode.creative").orElseThrow().text());
+    }
 }

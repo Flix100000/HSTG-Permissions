@@ -34,6 +34,15 @@ public record EntryPattern(Kind kind, String mod, List<String> segments) {
         return Optional.of(new EntryPattern(Kind.PATH, parts.get(0), parts.subList(1, parts.size())));
     }
 
+    /** The pattern the way an entry writes it. */
+    public String text() {
+        return switch (kind) {
+            case ALL -> "*";
+            case MOD -> mod + ".*";
+            case PATH -> mod + "." + String.join(".", segments);
+        };
+    }
+
     /** Longer wins. {@code *} is the weakest, a whole mod the next. */
     public int specificity() {
         return switch (kind) {

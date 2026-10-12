@@ -26,5 +26,16 @@
   "config.hstg_permissions.protected.default": "Standard",
   "config.hstg_permissions.protected.done": "Fertig",
   "config.hstg_permissions.protected.search": "Commands zum Schützen suchen… (@mod)",
-  "message.hstg_permissions.command_locked": "Dieser Befehl ist noch gesperrt"
+  "message.hstg_permissions.command_locked": "Dieser Befehl ist noch gesperrt",
+  "command.hstg_permissions.check.allowed": "%1$s darf /%2$s: Stage %3$s gibt es frei (Eintrag %4$s)",
+  "command.hstg_permissions.check.locked": "%1$s darf /%2$s nicht: es fehlt Stage %3$s",
+  "command.hstg_permissions.check.minecraft_allows": "Keine Stage ist für /%2$s bei %1$s zuständig, und Minecraft erlaubt es",
+  "command.hstg_permissions.check.minecraft_denies": "Keine Stage ist für /%2$s bei %1$s zuständig, und Minecraft erlaubt es nicht (nur Operatoren)",
+  "command.hstg_permissions.check.unreadable": "/%2$s ist auf diesem Server kein gültiger Befehl",
+  "command.hstg_permissions.check.note.protected": " · Steht auf der Schutzliste: eine Stage kann ihn nehmen, aber nicht freigeben.",
+  "command.hstg_permissions.check.note.never_lockable": " · Gehört zu History Stages oder HSTG: Permissions: nie sperrbar.",
+  "command.hstg_permissions.verbose.prefix": "[verbose] ",
+  "command.hstg_permissions.verbose.on.all": "Verbose ist an: du siehst jeden Befehl, den ein Spieler ausführt.",
+  "command.hstg_permissions.verbose.on.player": "Verbose ist an: du siehst jeden Befehl, den %s ausführt.",
+  "command.hstg_permissions.verbose.off": "Verbose ist aus."
 }

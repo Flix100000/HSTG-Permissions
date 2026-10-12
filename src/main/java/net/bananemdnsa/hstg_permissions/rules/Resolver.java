@@ -15,18 +15,18 @@ public final class Resolver {
         boolean isProtected = rules.isProtected(target);
         boolean neverLockable = rules.isNeverLockable(target);
 
-        boolean everything = false;
+        Candidate everything = null;
         List<Candidate> scoped = new ArrayList<>();
         for (Candidate candidate : candidates) {
             if (!candidate.pattern().matches(target)) continue;
             if (candidate.pattern().kind() == EntryPattern.Kind.ALL) {
-                everything |= candidate.held();
+                if (candidate.held() && everything == null) everything = candidate;
             } else {
                 scoped.add(candidate);
             }
         }
         // A stage holding * may use everything and takes nothing from anyone without it.
-        if (everything && !isProtected) return Decision.GRANT;
+        if (everything != null && !isProtected) return Decision.grant(everything);
         if (scoped.isEmpty()) return Decision.DEFAULT;
 
         int best = 0;
@@ -35,7 +35,7 @@ public final class Resolver {
         for (Candidate candidate : scoped) {
             if (candidate.pattern().specificity() != best) continue;
             // Protected commands can be taken but never handed out.
-            if (candidate.held()) return isProtected ? Decision.DEFAULT : Decision.GRANT;
+            if (candidate.held()) return isProtected ? Decision.DEFAULT : Decision.grant(candidate);
             if (!missing.contains(candidate.stageId())) missing.add(candidate.stageId());
         }
         // And History Stages' own commands the other way round.

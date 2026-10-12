@@ -9,12 +9,14 @@ import net.bananemdnsa.historystages.api.diagnostics.RegisterReportSectionsEvent
 import net.bananemdnsa.historystages.api.diagnostics.RegisterStageChecksEvent;
 import net.bananemdnsa.historystages.api.lock.RegisterLockCategoriesEvent;
 import net.bananemdnsa.hstg_permissions.category.CommandsCategory;
+import net.bananemdnsa.hstg_permissions.command.PermsCommand;
 import net.bananemdnsa.hstg_permissions.config.PermissionsConfig;
 import net.bananemdnsa.hstg_permissions.config.PermissionsSettings;
 import net.bananemdnsa.hstg_permissions.diagnostics.PermissionDiagnostics;
 import net.bananemdnsa.hstg_permissions.gate.CommandEventGate;
 import net.bananemdnsa.hstg_permissions.gate.CommandGuard;
 import net.bananemdnsa.hstg_permissions.gate.StageChangeListener;
+import net.bananemdnsa.hstg_permissions.gate.VerboseWatch;
 import net.bananemdnsa.hstg_permissions.network.PermissionsNetwork;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
@@ -41,10 +43,12 @@ public class HSTGPermissions {
         modEventBus.addListener(RegisterStageChecksEvent.class, PermissionDiagnostics::registerChecks);
         modEventBus.addListener(RegisterReportSectionsEvent.class, PermissionDiagnostics::registerReport);
         modEventBus.addListener(RegisterPayloadHandlersEvent.class, PermissionsNetwork::register);
+        NeoForge.EVENT_BUS.addListener(RegisterCommandsEvent.class, PermsCommand::register);
         // Last, so every other mod's commands are already in the tree.
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, RegisterCommandsEvent.class, CommandGuard::onRegisterCommands);
         // Last, so no later listener can swap the parse after it was checked.
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, CommandEvent.class, CommandEventGate::onCommand);
         StageChangeListener.register(NeoForge.EVENT_BUS);
+        VerboseWatch.register(NeoForge.EVENT_BUS);
     }
 }
