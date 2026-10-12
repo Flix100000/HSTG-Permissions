@@ -1,6 +1,5 @@
 {
   "editor.hstg_permissions.tab.commands": "Commands",
-  "editor.hstg_permissions.filter": "Filter entries...",
   "editor.hstg_permissions.tooltip.commands": "Commands that belong to this stage: whoever has it may use them, nobody else may",
   "editor.hstg_permissions.problem.bad_path": "%1$s is not a command path. Write it like minecraft.gamemode.creative, mod.* or *.",
   "editor.hstg_permissions.problem.protected": "%1$s is on the protected list. This stage can take it away, but whoever has the stage still needs to be an operator. The list is in the server config.",
