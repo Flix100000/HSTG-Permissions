@@ -66,7 +66,7 @@ public final class PickerTree {
             String resolved = TypedPath.resolve(q, catalog);
             boolean found = EntryPattern.parse(resolved).map(catalog::exists).orElse(false);
             // A bare unknown word is just a search, not an entry worth adding.
-            if (found || q.contains(".") || q.contains("*")) {
+            if (found || TypedPath.looksLikeEntry(q)) {
                 out.add(new PickerRow(PickerRow.Kind.TYPED, resolved, resolved, 0, false, false, null, 0, found));
             }
         }

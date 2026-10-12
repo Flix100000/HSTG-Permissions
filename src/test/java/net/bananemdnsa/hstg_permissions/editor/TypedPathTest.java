@@ -1,6 +1,8 @@
 package net.bananemdnsa.hstg_permissions.editor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -44,6 +46,16 @@ class TypedPathTest {
         assertEquals("minecraft.gamemode.creative", resolve("gamemode.creative.*"));
         assertEquals("ftbquests.*", resolve("ftbquests.*"));
         assertEquals("foo.*", resolve("foo.*"));
+    }
+
+    @Test
+    void onlyPathsAndStarsLookLikeEntries() {
+        for (String yes : List.of("minecraft.gamemode", "waystones.tp", "ftbquests.*", "*")) {
+            assertTrue(TypedPath.looksLikeEntry(yes), yes);
+        }
+        for (String no : List.of("g", "gamemode", "@mc", "@mc.x", "", "minecraft..op")) {
+            assertFalse(TypedPath.looksLikeEntry(no), no);
+        }
     }
 
     @Test

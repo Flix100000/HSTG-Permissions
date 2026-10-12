@@ -12,7 +12,7 @@ import net.bananemdnsa.hstg_permissions.catalog.CommandCatalog;
 import net.bananemdnsa.hstg_permissions.editor.EntryList;
 import net.bananemdnsa.hstg_permissions.editor.PickerRow;
 import net.bananemdnsa.hstg_permissions.editor.PickerTree;
-import net.bananemdnsa.hstg_permissions.rules.EntryPattern;
+import net.bananemdnsa.hstg_permissions.editor.TypedPath;
 import net.bananemdnsa.hstg_permissions.rules.Mode;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -36,7 +36,7 @@ public final class CommandPicker extends AbstractSearchableList<PickerRow> {
     private CommandCatalog treeOf;
 
     public CommandPicker(EntryList list, Consumer<String> onSelect) {
-        super(Component.translatable("editor.hstg_permissions.picker.search").getString(), onSelect, list::commands);
+        super(Component.translatable("editor.hstg_permissions.picker.search").getString(), onSelect, null);
         this.list = list;
         setMultiSelect(true);
     }
@@ -77,7 +77,10 @@ public final class CommandPicker extends AbstractSearchableList<PickerRow> {
 
     @Override
     protected boolean matchesQuery(PickerRow entry, String lowerCaseQuery) {
-        return true; // the tree decides in afterFilter, because a match needs its parents shown too
+        // Only the own tabs rely on this; the tree rebuilds the main list in afterFilter, because a
+        // match needs its parents shown too.
+        return entry.entry().contains(lowerCaseQuery)
+                || entry.label().toLowerCase(Locale.ROOT).contains(lowerCaseQuery);
     }
 
     @Override
@@ -87,7 +90,7 @@ public final class CommandPicker extends AbstractSearchableList<PickerRow> {
         filtered.clear();
         if (current == null) {
             String typed = query.trim().toLowerCase(Locale.ROOT);
-            if (EntryPattern.parse(typed).isPresent()) {
+            if (TypedPath.looksLikeEntry(typed)) {
                 // Nothing to check it against, so it is not marked as missing either.
                 filtered.add(new PickerRow(PickerRow.Kind.TYPED, typed, typed, 0, false, false, null, 0, true));
             }

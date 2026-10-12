@@ -29,6 +29,17 @@ public final class TypedPath {
         return resolvePlain(text, catalog);
     }
 
+    /**
+     * Whether a search should also be offered as an entry to add. A plain word is a search; a path
+     * (with a dot) or a star is something to add. An "@" is the mod filter, never an entry.
+     */
+    public static boolean looksLikeEntry(String query) {
+        String text = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        if (text.isEmpty() || text.startsWith("@")) return false;
+        if (!text.contains(".") && !text.contains("*")) return false;
+        return EntryPattern.parse(text).isPresent();
+    }
+
     private static boolean names(String entry, CommandCatalog catalog) {
         return EntryPattern.parse(entry)
                 .filter(p -> p.kind() == EntryPattern.Kind.PATH)
