@@ -75,4 +75,15 @@ class ProtectedSelectionTest {
         selection.toggle(List.of("tp"));
         assertEquals(List.of(), selection.entries());
     }
+
+    @Test
+    void aModRowWithAliasRootsAddsAndClearsOneEntry() {
+        ProtectedSelection selection = new ProtectedSelection(List.of());
+        selection.setSpellings(SampleTree.catalog(List.of())::canonical);
+        List<List<String>> roots = List.of(List.of("teleport"), List.of("tp"));
+        selection.toggleMod(roots);
+        assertEquals(1, selection.entries().size());
+        selection.toggleMod(roots);
+        assertEquals(List.of(), selection.entries());
+    }
 }

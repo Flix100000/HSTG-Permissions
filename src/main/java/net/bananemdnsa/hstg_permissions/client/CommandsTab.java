@@ -70,6 +70,7 @@ public final class CommandsTab implements CategoryTab {
     @Override
     public void removeAt(int index) {
         list.removeAt(index);
+        if (list.size() == 0) clearFilter();
     }
 
     @Override
@@ -153,6 +154,7 @@ public final class CommandsTab implements CategoryTab {
         picker = new CommandPicker(list, command -> {
             useSpellingsOf(ClientCatalog.get());
             list.pick(command);
+            clearFilter();
             onChanged.run();
         });
     }

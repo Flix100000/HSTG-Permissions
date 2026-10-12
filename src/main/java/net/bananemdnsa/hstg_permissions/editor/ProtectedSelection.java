@@ -64,8 +64,12 @@ public final class ProtectedSelection {
         boolean all = modState(roots) == ModState.ALL;
         for (List<String> root : roots) {
             int index = indexOf(canonical.apply(root));
-            if (all) entries.remove(index);
-            else if (index < 0) entries.add(String.join(".", root));
+            // Alias roots share one stored entry, so a later root may find it already gone (or added).
+            if (all) {
+                if (index >= 0) entries.remove(index);
+            } else if (index < 0) {
+                entries.add(String.join(".", root));
+            }
         }
     }
 

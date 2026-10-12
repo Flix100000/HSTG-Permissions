@@ -3,9 +3,9 @@ package net.bananemdnsa.hstg_permissions.mixin.client;
 import java.util.Locale;
 
 import org.lwjgl.glfw.GLFW;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.bananemdnsa.hstg_permissions.client.ClientGameModes;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen;
 import net.minecraft.client.player.LocalPlayer;
 
@@ -25,20 +24,12 @@ public abstract class GameModeSwitcherScreenMixin {
     @Shadow
     private GameModeSwitcherScreen.GameModeIcon currentlyHovered;
 
-    @Unique
-    private GameModeSwitcherScreen.GameModeIcon hstgp$beforeRender;
-
-    @Inject(method = "render", at = @At("HEAD"))
-    private void hstgp$rememberSelection(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
-        hstgp$beforeRender = currentlyHovered;
-    }
-
-    // The hover loop in render moves the selection to whatever is under the mouse, greyed or not.
-    @Inject(method = "render", at = @At("TAIL"))
-    private void hstgp$keepAllowedSelection(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
-        if (ClientGameModes.known() && !ClientGameModes.allows(hstgp$name(currentlyHovered))) {
-            currentlyHovered = hstgp$beforeRender;
-        }
+    // The hover loop in render assigns whatever is under the mouse; a greyed mode must not take the
+    // selection, or the loop also clears the highlight of the slot that keeps it.
+    @Redirect(method = "render", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD,
+            target = "Lnet/minecraft/client/gui/screens/debug/GameModeSwitcherScreen;currentlyHovered:Lnet/minecraft/client/gui/screens/debug/GameModeSwitcherScreen$GameModeIcon;"))
+    private void hstgp$hoverOnlyAllowed(GameModeSwitcherScreen self, GameModeSwitcherScreen.GameModeIcon icon) {
+        if (!ClientGameModes.known() || ClientGameModes.allows(hstgp$name(icon))) currentlyHovered = icon;
     }
 
     @Inject(method = "init", at = @At("TAIL"))
