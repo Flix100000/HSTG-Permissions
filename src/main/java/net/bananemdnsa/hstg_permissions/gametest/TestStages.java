@@ -35,6 +35,11 @@ final class TestStages {
         return write("individual", name, commands);
     }
 
+    /** A global stage that asks for its lock hints to be hidden. */
+    static String globalWithoutHints(String name, String... commands) {
+        return write("global", name, false, commands);
+    }
+
     static void reload(MinecraftServer server) {
         server.getCommands().performPrefixedCommand(
                 server.createCommandSourceStack().withSuppressedOutput(), "history reload");
@@ -59,6 +64,10 @@ final class TestStages {
     }
 
     private static String write(String scope, String name, String... commands) {
+        return write(scope, name, true, commands);
+    }
+
+    private static String write(String scope, String name, boolean hints, String... commands) {
         String id = PREFIX + name;
         JsonArray list = new JsonArray();
         for (String command : commands) {
@@ -71,6 +80,11 @@ final class TestStages {
         JsonObject stage = new JsonObject();
         stage.addProperty("display_name", name);
         stage.add("addons", addons);
+        if (!hints) {
+            JsonObject hidden = new JsonObject();
+            hidden.addProperty("show_lock_hints", false);
+            stage.add("hidden_display", hidden);
+        }
         try {
             Path dir = dir(scope);
             Files.createDirectories(dir);

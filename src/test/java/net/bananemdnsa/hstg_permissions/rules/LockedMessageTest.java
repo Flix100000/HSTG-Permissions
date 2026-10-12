@@ -28,6 +28,12 @@ class LockedMessageTest {
     }
 
     @Test
+    void substitutedTextKeepsItsAmpersand() {
+        assertEquals(Optional.of("§cNeeds R&D for /say a&b"),
+                LockedMessage.format("&cNeeds {stage} for /{command}", "R&D", "say a&b"));
+    }
+
+    @Test
     void hiddenStagesShowAsQuestionMarks() {
         assertEquals(Optional.of("Needs ???"), LockedMessage.format("Needs {stage}", LockedMessage.HIDDEN, "time"));
     }

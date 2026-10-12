@@ -18,6 +18,7 @@ public final class LockedMessage {
 
     public static Optional<String> format(String configured, String stages, String command) {
         if (configured == null || configured.isBlank()) return Optional.empty();
-        return Optional.of(configured.replace("{stage}", stages).replace("{command}", command).replace('&', '§'));
+        // Colours first: a stage called "R&D" or a typed "&" must stay as written.
+        return Optional.of(configured.replace('&', '§').replace("{stage}", stages).replace("{command}", command));
     }
 }

@@ -64,6 +64,27 @@ public final class SettingsTests {
         }
     }
 
+    @GameTest(template = "empty", batch = "hstgp_settings_hidden_hints")
+    public static void aStageWithoutHintsKeepsItsName(GameTestHelper helper) {
+        MinecraftServer server = helper.getLevel().getServer();
+        ServerPlayer player = TestPlayers.createOp(helper);
+        try {
+            PermissionsSettings.MESSAGE_TEXT.write().accept(LockedMessage.DEFAULT);
+            TestStages.globalWithoutHints("settings_secret", "minecraft.time");
+            TestStages.reload(server);
+            Inbox inbox = TestPlayers.run(player, "time query daytime");
+            if (!inbox.toString().contains(LockedMessage.HIDDEN) || inbox.toString().contains("settings_secret")) {
+                helper.fail("a stage that hides its hints must show as " + LockedMessage.HIDDEN + ", got " + inbox);
+                return;
+            }
+            helper.succeed();
+        } finally {
+            PermissionsSettings.MESSAGE_TEXT.write().accept(LockedMessage.DEFAULT);
+            TestPlayers.cleanUp(player);
+            TestStages.removeAll(server);
+        }
+    }
+
     @GameTest(template = "empty", batch = "hstgp_settings_empty_text")
     public static void anEmptyMessageUsesTheLangKey(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
