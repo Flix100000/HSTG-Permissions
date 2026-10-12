@@ -4,11 +4,13 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
+import net.bananemdnsa.historystages.api.config.RegisterConfigSectionsEvent;
 import net.bananemdnsa.historystages.api.diagnostics.RegisterReportSectionsEvent;
 import net.bananemdnsa.historystages.api.diagnostics.RegisterStageChecksEvent;
 import net.bananemdnsa.historystages.api.lock.RegisterLockCategoriesEvent;
 import net.bananemdnsa.hstg_permissions.category.CommandsCategory;
 import net.bananemdnsa.hstg_permissions.config.PermissionsConfig;
+import net.bananemdnsa.hstg_permissions.config.PermissionsSettings;
 import net.bananemdnsa.hstg_permissions.diagnostics.PermissionDiagnostics;
 import net.bananemdnsa.hstg_permissions.gate.CommandEventGate;
 import net.bananemdnsa.hstg_permissions.gate.CommandGuard;
@@ -34,6 +36,7 @@ public class HSTGPermissions {
         modContainer.registerConfig(ModConfig.Type.SERVER, PermissionsConfig.SPEC);
         modEventBus.addListener(ModConfigEvent.Loading.class, PermissionsConfig::onConfigChanged);
         modEventBus.addListener(ModConfigEvent.Reloading.class, PermissionsConfig::onConfigChanged);
+        modEventBus.addListener(RegisterConfigSectionsEvent.class, PermissionsSettings::register);
         modEventBus.addListener(RegisterLockCategoriesEvent.class, CommandsCategory::register);
         modEventBus.addListener(RegisterStageChecksEvent.class, PermissionDiagnostics::registerChecks);
         modEventBus.addListener(RegisterReportSectionsEvent.class, PermissionDiagnostics::registerReport);

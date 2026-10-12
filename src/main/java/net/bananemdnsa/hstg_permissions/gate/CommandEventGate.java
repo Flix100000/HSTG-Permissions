@@ -9,6 +9,7 @@ import net.bananemdnsa.hstg_permissions.config.PermissionsConfig;
 import net.bananemdnsa.hstg_permissions.config.PermissionsConfig.MessageMode;
 import net.bananemdnsa.hstg_permissions.rules.CommandTarget;
 import net.bananemdnsa.hstg_permissions.rules.Decision;
+import net.bananemdnsa.hstg_permissions.rules.LockedMessage;
 import net.bananemdnsa.hstg_permissions.tree.CommandTree;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -72,7 +73,9 @@ public final class CommandEventGate {
             source.sendFailure(Component.translatable("command.unknown.command"));
             return;
         }
-        MutableComponent message = Component.translatable("message.hstg_permissions.command_locked");
+        MutableComponent message = LockedMessage.text(PermissionsConfig.lockedMessageText())
+                .<MutableComponent>map(Component::literal)
+                .orElseGet(() -> Component.translatable("message.hstg_permissions.command_locked"));
         Component required = LockFeedbacks.requiredSuffix(player, decision.lockingStages());
         if (required != null) message.append(required);
         source.sendFailure(message);

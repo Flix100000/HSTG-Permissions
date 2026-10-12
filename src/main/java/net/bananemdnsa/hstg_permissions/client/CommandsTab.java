@@ -22,8 +22,6 @@ import net.minecraft.network.chat.Component;
 /** The Commands tab: one row per entry, its path written the way the stage file writes it. */
 public final class CommandsTab implements CategoryTab {
 
-    private static final int COUNT_LINE_H = 14;
-
     private final Runnable onChanged;
     private final EntryList list = new EntryList();
     private final EditorRowList rows = new EditorRowList();
@@ -81,7 +79,7 @@ public final class CommandsTab implements CategoryTab {
 
     @Override
     public int contentHeight(int width) {
-        return list.size() == 0 ? 0 : rows.heightForRows(list.size()) + COUNT_LINE_H;
+        return rows.heightForRows(list.size());
     }
 
     @Override
@@ -92,7 +90,7 @@ public final class CommandsTab implements CategoryTab {
     @Override
     public boolean renderContent(TabRenderContext ctx) {
         var catalog = ClientCatalog.get();
-        int bottom = rows.render(ctx, list.size(), (row, i) -> {
+        rows.render(ctx, list.size(), (row, i) -> {
             PermissionEntry entry = list.entryAt(i);
             EntryStatus status = EntryStatus.of(entry, catalog);
             row.text(RowText.of(entry.command(), status.level()));
@@ -100,10 +98,6 @@ public final class CommandsTab implements CategoryTab {
                 ctx.tooltip("hstgp.row." + i + "." + status.problem().kind(), describe(entry, status.problem()));
             }
         });
-        if (list.size() > 0) {
-            String count = Component.translatable("editor.hstg_permissions.count", list.size()).getString();
-            ctx.graphics().drawString(ctx.font(), count, ctx.x() + 4, bottom + 3, 0x888888, false);
-        }
         return true;
     }
 

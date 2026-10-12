@@ -19,6 +19,10 @@ public final class PermissionsConfig {
     public static final ModConfigSpec SPEC;
     private static final ModConfigSpec.ConfigValue<List<? extends String>> PROTECTED_COMMANDS;
     private static final ModConfigSpec.EnumValue<MessageMode> LOCKED_MESSAGE;
+    private static final ModConfigSpec.ConfigValue<String> LOCKED_MESSAGE_TEXT;
+
+    // HSTG syncs values back to every client, which has no server config of its own to write into.
+    private static final SettingsMirror MIRROR = new SettingsMirror();
 
     private static volatile ProtectionRules protection =
             ProtectionRules.of(ProtectionRules.DEFAULT_PROTECTED, ProtectionRules.NEVER_LOCKABLE_MODS);
@@ -36,6 +40,10 @@ public final class PermissionsConfig {
                         "LOCKED says it is locked (and which stage it needs, where the stage allows hints).",
                         "VANILLA answers like Minecraft does for a command that does not exist.")
                 .defineEnum("locked_message", MessageMode.LOCKED);
+        LOCKED_MESSAGE_TEXT = builder
+                .comment("The message shown when a command is locked. Empty uses the translated default "
+                        + "(message.hstg_permissions.command_locked). & starts a colour code.")
+                .define("locked_message_text", "");
         SPEC = builder.build();
     }
 
@@ -43,6 +51,10 @@ public final class PermissionsConfig {
 
     public static void onConfigChanged(ModConfigEvent event) {
         if (event.getConfig().getSpec() != SPEC) return;
+        reapply();
+    }
+
+    private static void reapply() {
         Set<String> modIds = knownModIds();
         List<String> commands = protectedCommands();
         protection = ProtectionRules.of(commands, ProtectionRules.NEVER_LOCKABLE_MODS, modIds);
@@ -70,14 +82,38 @@ public final class PermissionsConfig {
     }
 
     public static List<String> protectedCommands() {
-        return SPEC.isLoaded() ? List.copyOf(PROTECTED_COMMANDS.get()) : ProtectionRules.DEFAULT_PROTECTED;
+        return SPEC.isLoaded() ? List.copyOf(PROTECTED_COMMANDS.get()) : MIRROR.protectedCommands();
     }
 
     public static MessageMode messageMode() {
-        return SPEC.isLoaded() ? LOCKED_MESSAGE.get() : MessageMode.LOCKED;
+        return SPEC.isLoaded() ? LOCKED_MESSAGE.get() : MessageMode.valueOf(MIRROR.messageMode());
+    }
+
+    public static String lockedMessageText() {
+        return SPEC.isLoaded() ? LOCKED_MESSAGE_TEXT.get() : MIRROR.lockedMessageText();
+    }
+
+    public static void setProtectedCommands(List<String> commands) {
+        MIRROR.protectedCommands(commands);
+        if (!SPEC.isLoaded()) return;
+        PROTECTED_COMMANDS.set(MIRROR.protectedCommands());
+        PROTECTED_COMMANDS.save();
+        reapply();
     }
 
     public static void setMessageMode(MessageMode mode) {
+        MIRROR.messageMode(mode.name());
+        if (!SPEC.isLoaded()) return;
         LOCKED_MESSAGE.set(mode);
+        LOCKED_MESSAGE.save();
+        reapply();
+    }
+
+    public static void setLockedMessageText(String text) {
+        MIRROR.lockedMessageText(text);
+        if (!SPEC.isLoaded()) return;
+        LOCKED_MESSAGE_TEXT.set(text);
+        LOCKED_MESSAGE_TEXT.save();
+        reapply();
     }
 }

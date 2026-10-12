@@ -1,7 +1,6 @@
 {
   "editor.hstg_permissions.tab.commands": "Commands",
   "editor.hstg_permissions.tooltip.commands": "Commands that belong to this stage: whoever has it may use them, nobody else may",
-  "editor.hstg_permissions.count": "Entries: %1$s",
   "editor.hstg_permissions.problem.bad_path": "%1$s is not a command path. Write it like minecraft.gamemode.creative, mod.* or *.",
   "editor.hstg_permissions.problem.protected": "%1$s is on the protected list. This stage can take it away, but whoever has the stage still needs to be an operator. The list is in the server config.",
   "editor.hstg_permissions.problem.never_lockable": "%1$s belongs to History Stages or HSTG: Permissions. A stage can give it, but never take it away.",
@@ -14,5 +13,14 @@
   "editor.hstg_permissions.picker.unavailable.hint": "Type a path, like minecraft.gamemode",
   "editor.hstg_permissions.picker.typed": "Add: %s",
   "editor.hstg_permissions.picker.not_found": "not found",
+  "config.hstg_permissions.settings.title": "HSTG: Permissions",
+  "config.hstg_permissions.settings.lockedMessage": "Message for a locked command",
+  "config.hstg_permissions.settings.lockedMessage.desc": "Your own message, or Minecraft's \"Unknown command\" so a locked command looks like it does not exist.",
+  "config.hstg_permissions.settings.lockedMessage.option.locked": "Own message",
+  "config.hstg_permissions.settings.lockedMessage.option.vanilla": "Like vanilla",
+  "config.hstg_permissions.settings.lockedMessageText": "Text of the message",
+  "config.hstg_permissions.settings.lockedMessageText.desc": "Leave empty for the translated default. & starts a colour code. The required stage is added after it where the stage allows hints.",
+  "config.hstg_permissions.settings.protectedCommands": "Protected commands",
+  "config.hstg_permissions.settings.protectedCommands.desc": "Commands a stage can take away but never hand out.",
   "message.hstg_permissions.command_locked": "This command is still locked"
 }

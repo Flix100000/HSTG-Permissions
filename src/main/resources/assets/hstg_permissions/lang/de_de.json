@@ -1,7 +1,6 @@
 {
   "editor.hstg_permissions.tab.commands": "Commands",
   "editor.hstg_permissions.tooltip.commands": "Commands, die zu dieser Stage gehören: Wer sie hat, darf sie, sonst niemand",
-  "editor.hstg_permissions.count": "Einträge: %1$s",
   "editor.hstg_permissions.problem.bad_path": "%1$s ist kein Command-Pfad. Schreibweise wie minecraft.gamemode.creative, mod.* oder *.",
   "editor.hstg_permissions.problem.protected": "%1$s steht auf der Schutzliste. Diese Stage kann ihn wegnehmen, aber wer sie hat, braucht trotzdem OP. Die Liste steht in der Server-Config.",
   "editor.hstg_permissions.problem.never_lockable": "%1$s gehört zu History Stages oder HSTG: Permissions. Eine Stage kann ihn geben, aber nie wegnehmen.",
@@ -14,5 +13,14 @@
   "editor.hstg_permissions.picker.unavailable.hint": "Pfad eintippen, z. B. minecraft.gamemode",
   "editor.hstg_permissions.picker.typed": "Eintragen: %s",
   "editor.hstg_permissions.picker.not_found": "nicht gefunden",
+  "config.hstg_permissions.settings.title": "HSTG: Permissions",
+  "config.hstg_permissions.settings.lockedMessage": "Meldung bei gesperrtem Command",
+  "config.hstg_permissions.settings.lockedMessage.desc": "Eigene Meldung oder Minecrafts „Unbekannter Befehl“, damit ein gesperrter Command aussieht, als gäbe es ihn nicht.",
+  "config.hstg_permissions.settings.lockedMessage.option.locked": "Eigene Meldung",
+  "config.hstg_permissions.settings.lockedMessage.option.vanilla": "Wie Vanilla",
+  "config.hstg_permissions.settings.lockedMessageText": "Text der Meldung",
+  "config.hstg_permissions.settings.lockedMessageText.desc": "Leer lassen für den übersetzten Standardtext. & leitet einen Farbcode ein. Die benötigte Stage wird angehängt, wenn die Stage Hinweise erlaubt.",
+  "config.hstg_permissions.settings.protectedCommands": "Schutzliste",
+  "config.hstg_permissions.settings.protectedCommands.desc": "Commands, die eine Stage nur wegnehmen, nie geben kann.",
   "message.hstg_permissions.command_locked": "Dieser Befehl ist noch gesperrt"
 }
