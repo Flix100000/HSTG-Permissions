@@ -1,5 +1,6 @@
 {
   "editor.hstg_permissions.tab.commands": "Commands",
+  "editor.hstg_permissions.filter": "Einträge filtern…",
   "editor.hstg_permissions.tooltip.commands": "Commands, die zu dieser Stage gehören: Wer sie hat, darf sie, sonst niemand",
   "editor.hstg_permissions.problem.bad_path": "%1$s ist kein Command-Pfad. Schreibweise wie minecraft.gamemode.creative, mod.* oder *.",
   "editor.hstg_permissions.problem.protected": "%1$s steht auf der Schutzliste. Diese Stage kann ihn wegnehmen, aber wer sie hat, braucht trotzdem OP. Die Liste steht in der Server-Config.",
