@@ -11,6 +11,7 @@ out/
 !**/src/**/out/
 
 .run/
+run-gametest/
 
 .apt_generated
 .classpath

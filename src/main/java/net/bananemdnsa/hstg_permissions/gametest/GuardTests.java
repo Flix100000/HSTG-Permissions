@@ -59,8 +59,8 @@ public final class GuardTests {
         try {
             TestStages.global("guard_console", "minecraft.time");
             TestStages.reload(server);
-            CommandNode<CommandSourceStack> gamemode = server.getCommands().getDispatcher().getRoot().getChild("gamemode");
-            if (!gamemode.canUse(server.createCommandSourceStack())) {
+            CommandNode<CommandSourceStack> time = server.getCommands().getDispatcher().getRoot().getChild("time");
+            if (!time.canUse(server.createCommandSourceStack())) {
                 helper.fail("the console must get past every lock");
                 return;
             }
@@ -75,8 +75,12 @@ public final class GuardTests {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
-            TestStages.global("guard_history", "historystages.history");
+            TestStages.global("guard_history", "minecraft.gamemode", "historystages.history");
             TestStages.reload(server);
+            if (TestPlayers.canUse(player, "gamemode")) {
+                helper.fail("the stage must be in effect, or the check below proves nothing");
+                return;
+            }
             if (!TestPlayers.canUse(player, "history")) {
                 helper.fail("/history must never be lockable, not even by a stage that names it");
                 return;
@@ -93,8 +97,12 @@ public final class GuardTests {
         MinecraftServer server = helper.getLevel().getServer();
         ServerPlayer player = TestPlayers.createOp(helper);
         try {
-            TestStages.global("guard_history_run", "historystages.history", "hstg_permissions.anything");
+            TestStages.global("guard_history_run", "minecraft.gamemode", "historystages.history", "hstg_permissions.anything");
             TestStages.reload(server);
+            if (TestPlayers.canUse(player, "gamemode")) {
+                helper.fail("the stage must be in effect, or the check below proves nothing");
+                return;
+            }
             // HSTG has no list command; zone info only reads the player's own selection.
             Inbox inbox = TestPlayers.run(player, "history zone info");
             if (inbox.mentions("message.hstg_permissions.command_locked") || inbox.mentions("command.unknown.command")) {

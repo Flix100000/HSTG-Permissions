@@ -2,7 +2,7 @@ package net.bananemdnsa.hstg_permissions.rules;
 
 import java.util.List;
 
-/** @param lockingStages the stages whose locks won; empty unless the verdict is LOCK */
+/** @param lockingStages the missing stages at the most specific level; empty unless the verdict is LOCK */
 public record Decision(Verdict verdict, List<String> lockingStages) {
 
     public enum Verdict { LOCK, GRANT, DEFAULT }
