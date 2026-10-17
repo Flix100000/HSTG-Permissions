@@ -36,7 +36,7 @@ far more nodes than it should have. Here an entry is written the way you type th
 
 | Minecraft | Loader   | Status                 |
 | --------- | -------- | ---------------------- |
-| 1.21.1    | NeoForge | In development         |
+| 1.21.1    | NeoForge | Released               |
 
 Requires History Stages 6.1.0 or newer. The addon goes on the server. On the client it is optional, but
 you need it there for the editor tab, the F3+F4 menu and ranks on name tags.
