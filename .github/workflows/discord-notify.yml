@@ -76,8 +76,7 @@ jobs:
           # Discord embed description caps at 4096 characters
           RELEASE_BODY=$(printf '%s' "$RELEASE_BODY" | head -c 4000)
 
-          # Slugs are guesses until the project pages exist; fix them once they do.
-          MODRINTH_URL="https://modrinth.com/mod/hstg-permissions"
+          MODRINTH_URL="https://modrinth.com/mod/hstgpermissions"
           CURSEFORGE_URL="https://www.curseforge.com/minecraft/mc-mods/hstg-permissions"
           DOWNLOADS="[Modrinth]($MODRINTH_URL) • [CurseForge]($CURSEFORGE_URL) • [GitHub]($RELEASE_URL)"
 
