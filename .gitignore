@@ -3,7 +3,9 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/**/build/
 
-.idea/
+# keep everything out of .idea except the project icon
+.idea/*
+!.idea/icon.png
 *.iws
 *.iml
 *.ipr

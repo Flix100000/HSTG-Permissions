@@ -19,6 +19,10 @@ authors="Bananemdnsa"
 
 displayURL="https://github.com/Flix100000/HSTG-Permissions/wiki"
 
+logoFile="assets/${mod_id}/icon.png"
+
+logoBlur=false
+
 description='''
 Ties commands to History Stages. Whoever has the stage may use the command, operator or not. Everyone else may not, operators included.
 
